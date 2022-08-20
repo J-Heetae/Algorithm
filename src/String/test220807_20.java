@@ -1,3 +1,5 @@
+package String;
+
 import java.util.*;
 
 //String_중복문자제거

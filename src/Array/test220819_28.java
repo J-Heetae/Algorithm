@@ -1,7 +1,9 @@
+package Array;
+
 import java.util.*;
 
 //Array 피보나치 수열
-public class test20220819_28 {
+public class test220819_28 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int num = sc.nextInt();

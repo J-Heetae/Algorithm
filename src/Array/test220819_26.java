@@ -1,7 +1,9 @@
+package Array;
+
 import java.util.*;
 
 //Array 보이는 학생
-class test20220819_26 {
+class test220819_26 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int num = sc.nextInt();

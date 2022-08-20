@@ -1,7 +1,9 @@
+package Array;
+
 import java.util.Scanner;
 
 //Array 가위바위보
-public class test20220819_27 {
+public class test220819_27 {
     public static void main(String[] args){
         Scanner sc = new Scanner(System.in);
 

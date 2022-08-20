@@ -1,3 +1,5 @@
+package String;
+
 public class test220803_12 {
     public static void main(String[] args) {
         String s = "aaa";

@@ -1,3 +1,5 @@
+package String;
+
 import java.util.Scanner;
 
 //String_문장속단어

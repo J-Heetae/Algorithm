@@ -1,3 +1,5 @@
+package Array;
+
 import java.util.Scanner;
 
 //Array 큰 수 출력하기
