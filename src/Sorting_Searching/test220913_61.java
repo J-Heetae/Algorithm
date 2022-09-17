@@ -1,4 +1,4 @@
-package Sorging_Searching;
+package Sorting_Searching;
 
 
 import java.util.Scanner;
@@ -13,7 +13,6 @@ public class test220913_61 {
         for(int i=0; i<num; i++) {
             coordList[i] = new Coord(sc.nextInt(), sc.nextInt());
         }
-
         for(int i=0; i<num; i++) {
             for(int j=1; j<num-i; j++) {
                 if(coordList[j].x < coordList[j-1].x) {

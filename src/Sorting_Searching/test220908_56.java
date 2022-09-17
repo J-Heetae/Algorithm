@@ -1,8 +1,10 @@
-package Sorging_Searching;
+package Sorting_Searching;
+
 
 import java.util.Scanner;
 
-public class test220908_58 {
+//선택정렬
+public class test220908_56 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int size = sc.nextInt();
@@ -12,14 +14,16 @@ public class test220908_58 {
             nums[i] = sc.nextInt();
         }
 
-        for(int i=1; i<size; i++) {
-            int tmp = nums[i];
-            int prev = i -1;
-            while((prev >=0) && (nums[prev] > tmp)) {
-                nums[prev + 1] = nums[prev];
-                prev--;
+        for(int i=0; i<size-1; i++) {
+            int indexMin = i;
+            for(int j=i+1; j<size; j++) {
+                if(nums[j] < nums[indexMin]) {
+                    indexMin = j;
+                }
             }
-            nums[prev+1] = tmp;
+            int tmp = nums[i];
+            nums[i] = nums[indexMin];
+            nums[indexMin] = tmp;
         }
 
         for (int num : nums) {

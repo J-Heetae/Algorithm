@@ -1,7 +1,6 @@
-package Sorging_Searching;
+package Sorting_Searching;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Scanner;
 
 //중복확인
