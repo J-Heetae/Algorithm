@@ -3,6 +3,9 @@ package KAKAO_TECH_INTERNSHIP_2022;
 import java.util.HashMap;
 
 public class Test_1_221017 {
+    public static void main(String[] args) {
+
+    }
     HashMap<Character, Integer> hm = new HashMap<>();
 
     public String solution(String[] survey, int[] choices) {
