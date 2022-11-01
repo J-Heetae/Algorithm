@@ -24,13 +24,13 @@ public class Test_221101_1 {
             order[i] = new ArrayList<>();
         }
 
-        for (int[] ints : p) {
-            add(path, ints, 0, 1);
-            add(path, ints, 1, 0);
+        for(int i=0; i<p.length; i++) {
+            add(path, p[i], 0, 1);
+            add(path, p[i], 1, 0);
         }
 
-        for (int[] ints : o) {
-            add(order, ints, 1, 0);
+        for(int i=0; i<o.length; i++) {
+            add(order, o[i], 1, 0);
         }
 
         if(order[0].isEmpty()) {
