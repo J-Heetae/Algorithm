@@ -5,22 +5,23 @@ import java.util.Scanner;
 public class Test_3052 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int num = sc.nextInt();
-        float sum = 0;
-        int max = Integer.MIN_VALUE;
-        int[] score = new int[num];
+        int[] arr = new int[10];
+        int cnt = 0;
 
-        for(int i=0 ;i<num; i++) {
-            score[i] = sc.nextInt();
-            if(score[i] > max) max = score[i];
+        for(int i=0 ;i<10; i++) {
+            arr[i] = 43;
         }
 
-        for(int i=0; i<num; i++) {
-            sum += (float) score[i] / max * 100;
+        for(int i=0; i<10; i++) {
+            int num = sc.nextInt() % 42;
+
+            for(int j=0; j<10; j++) {
+                if(arr[j] == num) break;
+
+                if(j == 9) arr[cnt++] = num;
+            }
         }
 
-        float avg = (float) sum / num;
-
-        System.out.println(avg);
+        System.out.println(cnt);
     }
 }
