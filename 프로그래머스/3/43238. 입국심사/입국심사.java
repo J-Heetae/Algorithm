@@ -3,7 +3,6 @@ import java.util.Arrays;
 class Solution {
     public long solution(int n, int[] times) {
         long answer = 0;
-        Arrays.sort(times);
         long left = 0;
         long right = (long) n * times[times.length - 1]; //가장 최악의 경우의(오래걸리는) 시간
         while (left <= right) {
