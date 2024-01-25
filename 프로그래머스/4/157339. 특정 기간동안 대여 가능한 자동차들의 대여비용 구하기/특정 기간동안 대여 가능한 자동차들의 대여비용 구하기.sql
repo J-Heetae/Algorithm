@@ -1,19 +1,15 @@
-with car as (
-    select com.car_id
-        , com.car_type
-        , trunc((30 * com.daily_fee) * ((100 - plan.discount_rate) / 100)) FEE 
-    from car_rental_company_car com
-    left outer join car_rental_company_discount_plan plan
-    on com.car_type = plan.car_type
-    where com.car_type in ('세단', 'SUV')
-        and plan.duration_type = '30일 이상'
-        and com.car_id not in (
-            select car_id
-            from car_rental_company_rental_history
-            where to_char(end_date, 'yyyymmdd') >= 20221101
-        )
-)
-
-select * from car
-where fee >= 500000 and fee < 2000000
-order by fee desc, car_type asc, car_id desc
+SELECT A.CAR_ID, 
+       A.CAR_TYPE, 
+       ((A.DAILY_FEE * 30) * ((100 - B.DISCOUNT_RATE) / 100)) AS FEE
+FROM CAR_RENTAL_COMPANY_CAR A
+    JOIN CAR_RENTAL_COMPANY_DISCOUNT_PLAN B ON A.CAR_TYPE = B.CAR_TYPE
+WHERE A.CAR_TYPE IN ('SUV','세단')
+    AND B.DURATION_TYPE = '30일 이상'
+    AND A.CAR_ID NOT IN (
+        SELECT C.CAR_ID
+        FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY C
+        WHERE TO_CHAR(C.END_DATE, 'YYYYMMDD') >= '20221101'
+    )
+    AND ((A.DAILY_FEE * 30) * ((100 - B.DISCOUNT_RATE) / 100)) >= 500000
+    AND ((A.DAILY_FEE * 30) * ((100 - B.DISCOUNT_RATE) / 100)) < 2000000
+ORDER BY 3 DESC, 2, 1 DESC;
