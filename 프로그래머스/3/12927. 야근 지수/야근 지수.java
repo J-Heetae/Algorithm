@@ -1,26 +1,30 @@
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 
 class Solution {
     public long solution(int n, int[] works) {
-        long answer = 0;
-        
-        PriorityQueue<Integer> pq = new PriorityQueue<Integer>(Collections.reverseOrder());
-        for(int work : works) {
-            pq.offer(work);
-        }
-        
-        for(int i=0; i<n; i++) {
-            if(pq.isEmpty()) break;
+        int length = works.length - 1;
+        Arrays.sort(works);
+        int max = works[length];
 
-            int time = pq.poll() - 1;
-            
-            if(time > 0) pq.offer(time);
+        while(n > 0 && max != 0) {
+            for (int i = length; i>=0; i-- ) {
+                if(n == 0) break;
+
+                if(works[i] >= max) {
+                    works[i]--;
+                    n--;
+                } else {
+                    max = works[length];
+                    break;
+                }
+            }
         }
-        
-        while(!pq.isEmpty()) {
-            answer += (long)Math.pow(pq.poll(),2);
+
+        long answer = 0L;
+        for (int work : works) {
+            answer += (long)work * work;
         }
-        
         return answer;
     }
 }
