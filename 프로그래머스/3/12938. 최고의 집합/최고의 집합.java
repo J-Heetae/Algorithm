@@ -2,22 +2,23 @@ import java.util.Arrays;
 
 class Solution {
     public int[] solution(int n, int s) {
-        if(n > s) {
-            return new int[]{-1};
-        }
+        if(n > s)
+            return new int[] {-1};
 
-        int[] tmp = new int[n];
         int value = s / n;
-        int remain = s % n;
+        int left = s % n;
 
-        Arrays.fill(tmp, value);
+        int[] answer = new int[n];
+        Arrays.fill(answer, value);
 
-        int idx = tmp.length - 1;
-        for(int i=0; i<remain; i++) {
-            tmp[idx] += 1;
-            idx--;
+        while(left >= 1) {
+            for(int i=answer.length-1; i>=0; i--) {
+                if(left <= 0)
+                    break;
+                answer[i]++;
+                left--;
+            }
         }
-
-        return tmp;
+        return answer;
     }
 }
