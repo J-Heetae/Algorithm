@@ -1,40 +1,25 @@
 class Solution {
     public int solution(int sticker[]) {
         int length = sticker.length;
+        int[] dp1 = new int[sticker.length];
+        int[] dp2 = new int[sticker.length];
 
-        if(length == 1) {
+        if(sticker.length == 1) {
             return sticker[0];
-        } else if (length == 2) {
-            return Math.max(sticker[0], sticker[1]);
         }
 
-        int answer;
-
-        int[] dp = new int[length];
-
-        //첫번째 스티커 사용
-        dp[0] = sticker[0];
-        dp[1] = dp[0];
-        dp[2] = dp[1] + sticker[2];
-        int a, b;
-        for (int i = 3; i < length - 1; i++) {
-            a = dp[i - 1];
-            b = dp[i - 2] + sticker[i];
-            dp[i] = Math.max(a, b);
+        dp1[0] = 0;
+        dp1[1] = sticker[1];
+        for(int i=2; i<length; i++) {
+            dp1[i] = Math.max(dp1[i - 2] + sticker[i], dp1[i - 1]);
         }
 
-        answer = Math.max(dp[length - 2], dp[length - 3]);
-
-        //첫번째 스티커 미사용
-        dp[0] = 0;
-        dp[1] = dp[0] + sticker[1];
-        for (int i = 2; i < length; i++) {
-            a = dp[i - 1];
-            b = dp[i - 2] + sticker[i];
-            dp[i] = Math.max(a, b);
+        dp2[0] = sticker[0];
+        dp2[1] = sticker[0];
+        for(int i=2; i<length-1; i++) {
+            dp2[i] = Math.max(dp2[i - 2] + sticker[i], dp2[i - 1]);
         }
 
-        answer = Math.max(answer, dp[length - 2]);
-        return Math.max(answer, dp[length - 1]);
+        return Math.max(dp1[length - 1], dp2[length - 2]);
     }
 }
