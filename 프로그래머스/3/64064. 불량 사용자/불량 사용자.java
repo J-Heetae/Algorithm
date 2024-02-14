@@ -2,51 +2,59 @@ import java.util.HashSet;
 import java.util.Set;
 
 class Solution {
-    static final int PRIME = 31;
-    static Set<Integer> list = new HashSet<>();
-    static boolean[] isChecked;
 
-    public int solution(String[] user_id, String[] banned_id) {
-        isChecked = new boolean[user_id.length];
-        find(user_id, banned_id, 0);
-        return list.size();
+    static int totalMatches;
+    static boolean[] isChecked;
+    static String[] userList;
+    static String[] bannedList;
+    static Set<Integer> uniqueCases = new HashSet<>();
+
+    public int solution(String[] user_ids, String[] banned_ids) {
+        isChecked = new boolean[user_ids.length];
+        userList = user_ids;
+        bannedList = banned_ids;
+        findMatches(banned_ids.length, 0, 0);
+        return totalMatches;
     }
 
-    private void find(String[] user_id, String[] banned_id, int idx) {
-        if (idx == banned_id.length) {
-            int hash = 0;
-            for (int i = 0; i < user_id.length; i++) {
-                if (isChecked[i])
-                    hash = hash * PRIME + 1;
+    private void findMatches(int length, int passed, int bannedIndex) {
+        if (passed == length) {
+            StringBuilder caseBuilder = new StringBuilder();
+            for (boolean isCheckedUser : isChecked) {
+                if (isCheckedUser)
+                    caseBuilder.append(1);
                 else
-                    hash = hash * PRIME;
+                    caseBuilder.append(0);
             }
-            list.add(hash);
+            if (!uniqueCases.contains(Integer.parseInt(caseBuilder.toString()))) {
+                totalMatches++;
+                uniqueCases.add(Integer.parseInt(caseBuilder.toString()));
+            }
             return;
         }
 
-        for (int i = 0; i < user_id.length; i++) {
-            if (isChecked[i])
+        for (int userIndex = 0; userIndex < userList.length; userIndex++) {
+            if (isChecked[userIndex])
                 continue;
-
-            if (isMatch(user_id[i], banned_id[idx])) {
-                isChecked[i] = true;
-                find(user_id, banned_id, idx + 1);
-                isChecked[i] = false;
+            if (matchesPattern(userList[userIndex], bannedList[bannedIndex])) {
+                isChecked[userIndex] = true;
+                findMatches(length, passed + 1, bannedIndex + 1);
+                isChecked[userIndex] = false;
             }
         }
     }
 
-    private boolean isMatch(String user, String banned) {
-        if (user.length() != banned.length())
+    private boolean matchesPattern(String userId, String bannedId) {
+        if (userId.length() != bannedId.length()) {
             return false;
+        }
 
-        for (int i = 0; i < banned.length(); i++) {
-            if (banned.charAt(i) == '*')
+        for (int charIndex = 0; charIndex < bannedId.length(); charIndex++) {
+            if (bannedId.charAt(charIndex) == '*')
                 continue;
-
-            if (banned.charAt(i) != user.charAt(i))
+            if (bannedId.charAt(charIndex) != userId.charAt(charIndex)) {
                 return false;
+            }
         }
         return true;
     }
