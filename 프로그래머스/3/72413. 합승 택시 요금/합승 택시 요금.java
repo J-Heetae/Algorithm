@@ -1,77 +1,57 @@
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 
 class Solution {
-    public static void main(String[] args) {
-        Solution s = new Solution();
-        s.solution(7, 3, 4, 1, new int[][] {{5, 7, 9}, {4, 6, 4}, {3, 6, 1}, {3, 2, 3}, {2, 1, 6}});
-    }
     public int solution(int n, int s, int a, int b, int[][] fares) {
-        int[][] loadArr = new int[n + 1][n + 1];
-        for (int i = 1; i <= n; i++)
-            for (int j = 1; j <= n; j++)
-                if (i != j)
-                    loadArr[i][j] = -1;
-
+        // 인접 행렬로 변환
+        int[][] graph = new int[n + 1][n + 1];
         for (int[] fare : fares) {
-            loadArr[fare[0]][fare[1]] = fare[2];
-            loadArr[fare[1]][fare[0]] = fare[2];
+            graph[fare[0]][fare[1]] = fare[2];
+            graph[fare[1]][fare[0]] = fare[2];
         }
 
-        ArrayList<Integer> list = new ArrayList<>();
-        list.add(s);
-        list.add(a);
-        list.add(b);
+        // 최소비용을 저장할 배열
+        int[][] minCost = new int[n + 1][n + 1];
 
-        int[][] dijkstra = new int[n + 1][n + 1];
-        for (int i = 1; i <= n; i++)
-            for (int j = 0; j <= n; j++)
-                if (i != j)
-                    dijkstra[i][j] = -1;
+        // 다익스트라 알고리즘을 사용해 각 노드에서 모든 노드로의 최소비용 계산
+        for (int i = 1; i <= n; i++) {
+            dijkstra(i, n, graph, minCost);
+        }
 
-        boolean[] visited;
-        PriorityQueue<int[]> que;
-        for (Integer i : list) {
-            visited = new boolean[n + 1];
-            que = new PriorityQueue<>(Comparator.comparingInt(o -> o[1]));
-
-            for (int j = 1; j <= n; j++)
-                if (loadArr[i][j] > 0)
-                    que.offer(new int[] {j, loadArr[i][j]});
-
-            visited[i] = true;
-            while (!que.isEmpty()) {
-                int[] poll = que.poll();
-                int curPoint = poll[0];
-                int curPrice = poll[1];
-
-                if (visited[curPoint])
-                    continue;
-                visited[curPoint] = true;
-                dijkstra[i][curPoint] = curPrice;
-
-                for (int j = 1; j <= n; j++)
-                    if (loadArr[curPoint][j] > 0 && !visited[j])
-                        que.offer(new int[] {j, loadArr[curPoint][j] + curPrice});
+        // 최소 합승 비용 계산
+        int answer = Integer.MAX_VALUE;
+        for (int i = 1; i <= n; i++) {
+            if (minCost[s][i] != Integer.MAX_VALUE && minCost[i][a] != Integer.MAX_VALUE && minCost[i][b] != Integer.MAX_VALUE) {
+                answer = Math.min(answer, minCost[s][i] + minCost[i][a] + minCost[i][b]);
             }
         }
-        int min = Integer.MAX_VALUE;
-        for (int i = 1; i <= n; i++) {
-            if (i == s) {
-                min = Math.min(min, (dijkstra[i][a] + dijkstra[i][b]));
-            } else if (i == a) {
-                min = Math.min(min, (dijkstra[s][a] + dijkstra[a][b]));
-            } else if (i == b) {
-                min = Math.min(min, (dijkstra[s][b] + dijkstra[b][a]));
-            } else {
-                int tmp = dijkstra[s][i];
-                if (dijkstra[a][i] > 0 && dijkstra[b][i] > 0) {
-                    tmp += dijkstra[a][i] + dijkstra[b][i];
-                    min = Math.min(min, tmp);
+
+        return answer;
+    }
+
+    private void dijkstra(int start, int n, int[][] graph, int[][] minCost) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> o1[1] - o2[1]);
+        boolean[] visited = new boolean[n + 1];
+        Arrays.fill(minCost[start], Integer.MAX_VALUE);
+        minCost[start][start] = 0;
+        pq.offer(new int[]{start, 0});
+
+        while (!pq.isEmpty()) {
+            int[] current = pq.poll();
+            int currentNode = current[0];
+
+            if (visited[currentNode]) continue;
+            visited[currentNode] = true;
+
+            for (int nextNode = 1; nextNode <= n; nextNode++) {
+                if (graph[currentNode][nextNode] != 0 && !visited[nextNode]) {
+                    if (minCost[start][nextNode] > minCost[start][currentNode] + graph[currentNode][nextNode]) {
+                        minCost[start][nextNode] = minCost[start][currentNode] + graph[currentNode][nextNode];
+                        pq.offer(new int[]{nextNode, minCost[start][nextNode]});
+                    }
                 }
             }
         }
-        return min;
     }
 }
