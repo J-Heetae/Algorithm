@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 class Solution {
 
@@ -19,9 +21,8 @@ class Solution {
         int[] distance = new int[n + 1];
         Arrays.fill(distance, Integer.MAX_VALUE);
 
-        PriorityQueue<int[]> que = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+        Queue<int[]> que = new LinkedList<>();
         que.offer(new int[] {destination, 0});
-
         while (!que.isEmpty()) {
             int[] cur = que.poll();
             int curArea = cur[0];
