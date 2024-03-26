@@ -3,37 +3,27 @@ import java.util.ArrayList;
 class Solution {
 
     static int size;
-    static final int PILLAR = 0;
-    static final int BEAM = 1;
+    static final int PILLAR = 0, BEAM = 1, REMOVE = 0, BUILD = 1;
 
-    static final int REMOVE = 0;
-    static final int BUILD = 1;
-
-    static int[][] pillarArr;
-    static int[][] beamArr;
+    static int[][] pillarArr, beamArr;
 
     public int[][] solution(int n, int[][] build_frame) {
         size = n;
         pillarArr = new int[size + 1][size + 1];
         beamArr = new int[size + 1][size + 1];
 
-        for (int[] one : build_frame) {
-            int x = one[0];
-            int y = one[1];
-            int type = one[2];
-            int work = one[3];
+        for (int[] frame : build_frame) {
+            int x = frame[0], y = frame[1], type = frame[2], work = frame[3];
 
             if (type == PILLAR) {
                 if (work == BUILD)
                     buildPillar(x, y);
-                if (work == REMOVE)
+                else
                     removePillar(x, y);
-            }
-
-            if (type == BEAM) {
+            } else {
                 if (work == BUILD)
                     buildBeam(x, y);
-                if (work == REMOVE)
+                else
                     removeBeam(x, y);
             }
         }
@@ -48,9 +38,7 @@ class Solution {
             }
         }
 
-        return result.stream()
-            .sorted((a, b) -> a[0] == b[0] ? a[1] == b[1] ? a[2] - b[2] : a[1] - b[1] : a[0] - b[0])
-            .toArray(int[][]::new);
+        return result.toArray(new int[0][]);
     }
 
     private void buildPillar(int x, int y) {
@@ -84,10 +72,7 @@ class Solution {
             }
         }
 
-        if (x == 0)
-            return;
-
-        if (beamArr[x - 1][y + 1] == 1) {
+        if (x != 0 && beamArr[x - 1][y + 1] == 1) {
             if (!validBeam(x - 1, y + 1)) {
                 pillarArr[x][y] = 1;
             }
@@ -131,10 +116,7 @@ class Solution {
             }
         }
 
-        if (x == 0)
-            return;
-
-        if (beamArr[x - 1][y] == 1) {
+        if (x != 0 && beamArr[x - 1][y] == 1) {
             if (!validBeam(x - 1, y)) {
                 beamArr[x][y] = 1;
             }
