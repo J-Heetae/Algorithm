@@ -1,11 +1,6 @@
 import java.util.ArrayList;
 
 class Solution {
-    public static void main(String[] args) {
-        Solution s = new Solution();
-        s.solution(new int[][]{{2, 3}, {4, 3}, {1, 1}, {2, 1}});
-    }
-
     public int[] solution(int[][] edges) {
         int[] answer = new int[4];
         int edgeNumber = 0;
