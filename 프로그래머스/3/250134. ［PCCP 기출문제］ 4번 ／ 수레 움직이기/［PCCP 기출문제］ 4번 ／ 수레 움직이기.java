@@ -1,212 +1,76 @@
-import java.util.LinkedList;
-import java.util.Queue;
-
 class Solution {
+    public static void main(String[] args) {
+        Solution s = new Solution();
+        s.solution(new int[][]{{1, 0, 2}, {0, 0, 0}, {5, 0 ,5}, {4, 0, 3}});
+    }
+    final int RED = 0, BLUE = 1;
     final int[] DX = {-1, 0, 1, 0}, DY = {0, 1, 0, -1};
-
-    int row, col;
     int minMove = Integer.MAX_VALUE;
-    int[] redStart, redEnd, blueStart, blueEnd;
+    int row, col;
     int[][] maze;
-
+    boolean[][][] visited;
 
     public int solution(int[][] maze) {
         row = maze.length;
         col = maze[0].length;
         this.maze = maze;
+        int[][] start = new int[2][2];
+        visited = new boolean[2][row][col];
 
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (maze[i][j] == 1) redStart = new int[]{i, j};
-                if (maze[i][j] == 3) redEnd = new int[]{i, j};
-                if (maze[i][j] == 2) blueStart = new int[]{i, j};
-                if (maze[i][j] == 4) blueEnd = new int[]{i, j};
+        for(int i=0; i<row; i++) {
+            for(int j=0; j<col; j++) {
+                if(maze[i][j] == 1) start[RED] = new int[]{i, j};
+                if(maze[i][j] == 2) start[BLUE] = new int[]{i, j};
             }
         }
 
-        boolean[][] redVisited = new boolean[row][col];
-        boolean[][] blueVisited = new boolean[row][col];
-
-        redVisited[redStart[0]][redStart[1]] = true;
-        blueVisited[blueStart[0]][blueStart[1]] = true;
-
-        Queue<MazeContext> queue = new LinkedList<>();
-        queue.offer(new MazeContext(0, redStart, blueStart, redVisited, blueVisited));
-
-        while (!queue.isEmpty()) {
-            MazeContext cur = queue.poll();
-
-            int[] red = cur.redPos;
-            int[] blue = cur.bluePos;
-
-            if (red[0] == redEnd[0] && red[1] == redEnd[1] && blue[0] == blueEnd[0] && blue[1] == blueEnd[1]) {
-                minMove = cur.moveCount;
-                break;
-            }
-
-            if (red[0] != redEnd[0] || red[1] != redEnd[1]) {
-                int nextRx, nextRy;
-
-                for (int i = 0; i < 4; i++) {
-                    nextRx = red[0] + DX[i];
-                    nextRy = red[1] + DY[i];
-
-                    if (nextRx < 0 || nextRx >= row || nextRy < 0 || nextRy >= col) //미로 벗어나는 위치면 패스
-                        continue;
-
-                    if (cur.redVisited[nextRx][nextRy]) //이미 방문했으면 패스
-                        continue;
-
-                    if (maze[nextRx][nextRy] == 5) //벽이면 패스
-                        continue;
-
-                    if (blue[0] == blueEnd[0] && blue[1] == blueEnd[1] && nextRx == blue[0] && nextRy == blue[1]) //도착한 파란 수레랑 겹치면 패스
-                        continue;
-
-                    int nextBx = blue[0], nextBy = blue[1];
-                    if (blue[0] != blueEnd[0] || blue[1] != blueEnd[1]) {
-                        for (int j = 0; j < 4; j++) {
-                            nextBx = blue[0] + DX[j];
-                            nextBy = blue[1] + DY[j];
-
-                            if (nextBx < 0 || nextBx >= row || nextBy < 0 || nextBy >= col) //미로 벗어나는 위치면 패스
-                                continue;
-
-                            if (cur.blueVisited[nextBx][nextBy]) //이미 방문했으면 패스
-                                continue;
-
-                            if (maze[nextBx][nextBy] == 5) //벽이면 패스
-                                continue;
-
-                            if (nextBx == nextRx && nextBy == nextRy) //다음 빨간수레랑 겹치면
-                                continue;
-
-                            if(red[0] == nextBx && red[1] == nextBy && blue[0] == nextRx && blue[1] == nextRy)
-                                continue;
-
-                            boolean[][] copyRedVisited = new boolean[row][col];
-                            boolean[][] copyBlueVisited = new boolean[row][col];
-
-                            for (int k = 0; k < row; k++) {
-                                for (int z = 0; z < col; z++) {
-                                    copyRedVisited[k][z] = cur.redVisited[k][z];
-                                    copyBlueVisited[k][z] = cur.blueVisited[k][z];
-                                }
-                            }
-
-                            copyRedVisited[nextRx][nextRy] = true;
-                            copyBlueVisited[nextBx][nextBy] = true;
-
-                            queue.offer(new MazeContext(cur.moveCount + 1, new int[]{nextRx, nextRy}, new int[]{nextBx, nextBy}, copyRedVisited, copyBlueVisited));
-                        }
-                    } else {
-                        boolean[][] copyRedVisited = new boolean[row][col];
-                        boolean[][] copyBlueVisited = new boolean[row][col];
-
-                        for (int k = 0; k < row; k++) {
-                            for (int z = 0; z < col; z++) {
-                                copyRedVisited[k][z] = cur.redVisited[k][z];
-                                copyBlueVisited[k][z] = cur.blueVisited[k][z];
-                            }
-                        }
-
-                        copyRedVisited[nextRx][nextRy] = true;
-                        copyBlueVisited[nextBx][nextBy] = true;
-
-                        queue.offer(new MazeContext(cur.moveCount + 1, new int[]{nextRx, nextRy}, new int[]{nextBx, nextBy}, copyRedVisited, copyBlueVisited));
-                    }
-                }
-            }
-
-            if (blue[0] != blueEnd[0] || blue[0] != blueEnd[1]) {
-                int nextBx, nextBy;
-
-                for (int i = 0; i < 4; i++) {
-                    nextBx = blue[0] + DX[i];
-                    nextBy = blue[1] + DY[i];
-
-                    if (nextBx < 0 || nextBx >= row || nextBy < 0 || nextBy >= col) //미로 벗어나는 위치면 패스
-                        continue;
-
-                    if (cur.blueVisited[nextBx][nextBy]) //이미 방문했으면 패스
-                        continue;
-
-                    if (maze[nextBx][nextBy] == 5) //벽이면 패스
-                        continue;
-
-                    if (red[0] == redEnd[0] && red[1] == redEnd[1] && nextBx == red[0] && nextBy == red[1]) //도착한 빨간 수레랑 겹치면 패스
-                        continue;
-
-                    int nextRx = red[0], nextRy = red[1];
-                    if (red[0] != redEnd[0] || red[1] != redEnd[1]) {
-                        for (int j = 0; j < 4; j++) {
-                            nextRx = red[0] + DX[i];
-                            nextRy = red[1] + DY[i];
-
-                            if (nextRx < 0 || nextRx >= row || nextRy < 0 || nextRy >= col) //미로 벗어나는 위치면 패스
-                                continue;
-
-                            if (cur.redVisited[nextRx][nextRy]) //이미 방문했으면 패스
-                                continue;
-
-                            if (maze[nextRx][nextRy] == 5) //벽이면 패스
-                                continue;
-
-                            if (nextBx == nextRx && nextBy == nextRy) //다음 빨간수레랑 겹치면
-                                continue;
-
-                            if(red[0] == nextBx && red[1] == nextBy && blue[0] == nextRx && blue[1] == nextBy)
-                                continue;
-
-                            boolean[][] copyRedVisited = new boolean[row][col];
-                            boolean[][] copyBlueVisited = new boolean[row][col];
-
-                            for (int k = 0; k < row; k++) {
-                                for (int z = 0; z < col; z++) {
-                                    copyRedVisited[k][z] = cur.redVisited[k][z];
-                                    copyBlueVisited[k][z] = cur.blueVisited[k][z];
-                                }
-                            }
-
-                            copyRedVisited[nextRx][nextRy] = true;
-                            copyBlueVisited[nextBx][nextBy] = true;
-
-                            queue.offer(new MazeContext(cur.moveCount + 1, new int[]{nextRx, nextRy}, new int[]{nextBx, nextBy}, copyRedVisited, copyBlueVisited));
-                        }
-                    } else {
-                        boolean[][] copyRedVisited = new boolean[row][col];
-                        boolean[][] copyBlueVisited = new boolean[row][col];
-
-                        for (int k = 0; k < row; k++) {
-                            for (int z = 0; z < col; z++) {
-                                copyRedVisited[k][z] = cur.redVisited[k][z];
-                                copyBlueVisited[k][z] = cur.blueVisited[k][z];
-                            }
-                        }
-
-                        copyRedVisited[nextRx][nextRy] = true;
-                        copyBlueVisited[nextBx][nextBy] = true;
-
-                        queue.offer(new MazeContext(cur.moveCount + 1, new int[]{nextRx, nextRy}, new int[]{nextBx, nextBy}, copyRedVisited, copyBlueVisited));
-                    }
-                }
-            }
-        }
+        visited[RED][start[RED][0]][start[RED][1]] = true;
+        visited[BLUE][start[BLUE][0]][start[BLUE][1]] = true;
+        getMinMove(start, 0);
 
         return (minMove == Integer.MAX_VALUE) ? 0 : minMove;
     }
 
-    class MazeContext {
-        int moveCount;
-        int[] redPos, bluePos;
-        boolean[][] redVisited, blueVisited;
+    void getMinMove(int[][] wagon, int move) {
+        if (move > minMove)
+            return;
 
-        public MazeContext(int moveCount, int[] redPos, int[] bluePos, boolean[][] redVisited, boolean[][] blueVisited) {
-            this.moveCount = moveCount;
-            this.redPos = redPos;
-            this.bluePos = bluePos;
-            this.redVisited = redVisited;
-            this.blueVisited = blueVisited;
+        int rx = wagon[RED][0];
+        int ry = wagon[RED][1];
+        int bx = wagon[BLUE][0];
+        int by = wagon[BLUE][1];
+
+        for(int i=0; i<4; i++) {
+            int nrx = (maze[rx][ry] == 3) ? rx : rx + DX[i];
+            int nry = (maze[rx][ry] == 3) ? ry : ry + DY[i];
+
+            if(nrx < 0 || nrx >= row || nry < 0 || nry >= col || maze[nrx][nry] == 5 || (maze[nrx][nry] != 3 && visited[RED][nrx][nry]))
+                continue;
+
+            for(int j=0; j<4; j++) {
+                int nbx = (maze[bx][by] == 4) ? bx : bx + DX[j];
+                int nby = (maze[bx][by] == 4) ? by : by + DY[j];
+
+                if(nbx < 0 || nbx >= row || nby < 0 || nby >= col || maze[nbx][nby] == 5 || (maze[nbx][nby] != 4 && visited[BLUE][nbx][nby]))
+                    continue;
+
+                if(nrx == nbx && nry == nby) //다음으로 이동할 곳이 겹치면
+                    continue;
+
+                if(rx == nbx && ry == nby && bx == nrx && by == nry) //서로 교차해서 지나가면
+                    continue;
+
+                if(maze[nrx][nry] == 3 && maze[nbx][nby] == 4) { //둘 다 도착
+                    minMove = Math.min(minMove, move + 1);
+                    return;
+                }
+
+                visited[RED][nrx][nry] = true;
+                visited[BLUE][nbx][nby] = true;
+                getMinMove(new int[][]{{nrx, nry}, {nbx, nby}}, move + 1);
+                visited[RED][nrx][nry] = false;
+                visited[BLUE][nbx][nby] = false;
+            }
         }
     }
 }
