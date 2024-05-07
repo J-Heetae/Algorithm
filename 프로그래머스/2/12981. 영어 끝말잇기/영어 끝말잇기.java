@@ -6,10 +6,12 @@ class Solution {
         Set<String> wordSet = new HashSet<>();
         int[] cnt = new int[n + 1];
         int num = 0;
+        char prev = words[0].charAt(0);
         for (; num < words.length; num++) {
-            if (wordSet.contains(words[num]) || (num != 0 && !words[num].startsWith(String.valueOf(words[num - 1].charAt(words[num - 1].length() - 1))))) {
+            if (wordSet.contains(words[num]) || words[num].charAt(0) != prev) {
                 break;
             }
+            prev = words[num].charAt(words[num].length() - 1);
             cnt[num % n]++;
             wordSet.add(words[num]);
         }
