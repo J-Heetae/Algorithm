@@ -5,17 +5,16 @@ import java.util.Queue;
 import java.util.Stack;
 
 class Solution {
-    public static void main(String[] args) {
-        Solution s = new Solution();
-        s.solution("100-200*300-500+20");
-    }
     long maxReward = Integer.MIN_VALUE;
+    int[] priority;
+
     HashMap<Character, Integer> map = new HashMap<>();
+
     Stack<Long> operandStack;
     Stack<Character> operatorStack;
+
     ArrayList<Long> operandList = new ArrayList<>();
     ArrayList<Character> operatorList = new ArrayList<>();
-    int[] priority;
 
     public long solution(String expression) {
         int mapIdx = 0;
