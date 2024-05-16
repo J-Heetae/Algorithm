@@ -1,10 +1,6 @@
 import java.util.ArrayList;
 
 class Solution {
-    public static void main(String[] args) {
-        Solution solution = new Solution();
-        solution.solution(new int[] {93, 30, 55}, new int[] {1, 30, 5});
-    }
     public int[] solution(int[] progresses, int[] speeds) {
         int length = progresses.length;
         int[] day = new int[length];
