@@ -16,7 +16,7 @@ class Solution {
             }
         }
 
-        for (int length = 3; length <= size; length++) {
+        for (int length = 2; length <= size; length++) {
             for (int i = 0; i < size - length + 1; i++) {
                 int j = i + length - 1;
                 if (s.charAt(i) == s.charAt(j) && dp[i + 1][j - 1]) {
