@@ -3,6 +3,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 class Solution {
+    int rowSize, columnSize;
+    String[][] relation;
+    ArrayList<String> candidateKeys;
 
     public static void main(String[] args) {
         Solution solution = new Solution();
@@ -11,76 +14,62 @@ class Solution {
             {"400", "con", "computer", "4"}, {"500", "muzi", "music", "3"}, {"600", "apeach", "music", "2"}});
     }
 
-    int answer = 0;
-    int rowSize, columnSize;
-    String[][] relation;
-    ArrayList<String> set = new ArrayList<>();
-
     public int solution(String[][] relation) {
-        rowSize = relation.length;
-        columnSize = relation[0].length;
+        this.rowSize = relation.length;
+        this.columnSize = relation[0].length;
         this.relation = relation;
+        this.candidateKeys = new ArrayList<>();
 
         for (int size = 1; size <= columnSize; size++) {
-            //일단 골라야지 사이즈에 맞게
-            pick(size, 0, "");
+            pick(size, 0, new StringBuilder());
         }
-        return set.size();
+
+        return candidateKeys.size();
     }
 
-    void pick(int size, int idx, String curPick) {
-        if (size == curPick.length() && check(curPick)) {
-            //검사 시작
-            checkCandi(curPick);
+    void pick(int size, int idx, StringBuilder curPick) {
+        if (curPick.length() == size) {
+            String candidate = curPick.toString();
+            if (isUnique(candidate) && isCandidateKey(candidate)) {
+                candidateKeys.add(candidate);
+            }
             return;
         }
-        //사이즈 맞춰서 고르기
         for (int i = idx; i < columnSize; i++) {
-            pick(size, i + 1, curPick + i);
+            curPick.append(i);
+            pick(size, i + 1, curPick);
+            curPick.deleteCharAt(curPick.length() - 1);
         }
     }
 
-    boolean check(String picked) {
-        outer:
-        for (String s : set) {
-            int length = s.length();
-            char[] charArr = s.toCharArray();
-            boolean[] flag = new boolean[charArr.length];
-
-            for (char c : picked.toCharArray()) {
-                for(int i=0; i<charArr.length; i++) {
-                    if(c == charArr[i]) {
-                        flag[i] = true;
-                    }
+    boolean isUnique(String picked) {
+        for (String key : candidateKeys) {
+            int matchCount = 0;
+            for (char c : key.toCharArray()) {
+                if(picked.indexOf(c) != -1) {
+                    matchCount++;
                 }
             }
-            for (boolean b : flag) {
-                if(!b) continue outer;
+            if(matchCount == key.length()) {
+                return false;
             }
-            return false;
         }
         return true;
     }
 
-    void checkCandi(String picked) {
-        int[] columnArr = new int[picked.length()];
-        for (int i = 0; i < picked.length(); i++) {
-            columnArr[i] = picked.charAt(i) - '0';
-        }
-
+    boolean isCandidateKey(String picked) {
         Set<String> checkSet = new HashSet<>();
         for (int i = 0; i < rowSize; i++) {
-            String cur = "";
-            for (int j = 0; j < columnArr.length; j++) {
-                cur += relation[i][columnArr[j]];
+            StringBuilder cur = new StringBuilder();
+            for (char c : picked.toCharArray()) {
+                cur.append(relation[i][c - '0']);
             }
-
-            if (checkSet.contains(cur)) {
-                return;
+            if (checkSet.contains(cur.toString())) {
+                return false;
             } else {
-                checkSet.add(cur);
+                checkSet.add(cur.toString());
             }
         }
-        set.add(picked);
+        return true;
     }
 }
