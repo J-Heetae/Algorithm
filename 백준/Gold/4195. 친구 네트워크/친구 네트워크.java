@@ -57,11 +57,11 @@ public class Main {
             if(groupSize[group1] <= groupSize[group2]) {
                 group[group1] = group2;
                 groupSize[group2] += groupSize[group1];
-                groupSize[group1] = 0;
+                // groupSize[group1] = 0;
             } else {
                 group[group2] = group1;
                 groupSize[group1] += groupSize[group2];
-                groupSize[group2] = 0;
+                // groupSize[group2] = 0;
             }
         }
     }
