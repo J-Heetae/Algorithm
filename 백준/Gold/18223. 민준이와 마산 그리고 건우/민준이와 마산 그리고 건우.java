@@ -3,10 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 class Main {
@@ -16,7 +13,6 @@ class Main {
     static final String SAVE_HIM = "SAVE HIM";
     static final String GOOD_BYE = "GOOD BYE";
 
-    static String answer = GOOD_BYE;
     static ArrayList<ArrayList<int[]>> list;
     static int V, E, P;
 
@@ -36,54 +32,56 @@ class Main {
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
             int c = Integer.parseInt(st.nextToken());
-
             list.get(a).add(new int[] {b, c});
             list.get(b).add(new int[] {a, c});
         }
 
-        PriorityQueue<Context> q = new PriorityQueue<>(Comparator.comparingInt(a -> a.length));
-        q.offer(new Context(1, 0, false));
+        int[] distFromStart = dijkstra(1);
+        int[] distFromP = dijkstra(P);
 
-        int[] min = new int[V + 1];
-        Arrays.fill(min, 987654321);
-        min[1] = 0;
+        // If the shortest path from start to end is equal to the path through P, then save him
+        if (distFromStart[V] == distFromStart[P] + distFromP[V]) {
+            System.out.println(SAVE_HIM);
+        } else {
+            System.out.println(GOOD_BYE);
+        }
+    }
 
-        while (!q.isEmpty()) {
-            Context context = q.poll();
-            int cur = context.cur;
-            int length = context.length;
-            boolean save = context.save;
+    static int[] dijkstra(int start) {
+        PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.length, b.length));
+        int[] dist = new int[V + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[start] = 0;
+        pq.offer(new Node(start, 0));
 
-            if (cur == P) {
-                save = true;
-            }
+        while (!pq.isEmpty()) {
+            Node node = pq.poll();
+            int cur = node.vertex;
+            int length = node.length;
 
-            if(cur == V) {
-                if(save) {
-                    answer = SAVE_HIM;
-                }
-                continue;
-            }
+            if (length > dist[cur]) continue; // Skip if this path is not the shortest
 
-            for (int[] next : list.get(cur)) {
-                if (min[next[0]] >= length + next[1]) {
-                    min[next[0]] = length + next[1];
-                    q.offer(new Context(next[0], length + next[1], save));
+            for (int[] neighbor : list.get(cur)) {
+                int next = neighbor[0];
+                int nextLength = length + neighbor[1];
+
+                if (nextLength < dist[next]) {
+                    dist[next] = nextLength;
+                    pq.offer(new Node(next, nextLength));
                 }
             }
         }
-        System.out.println(answer);
+
+        return dist;
     }
 
-    static class Context {
-        int cur;
+    static class Node {
+        int vertex;
         int length;
-        boolean save;
 
-        public Context(int cur, int length, boolean save) {
-            this.cur = cur;
+        public Node(int vertex, int length) {
+            this.vertex = vertex;
             this.length = length;
-            this.save = save;
         }
     }
 }
