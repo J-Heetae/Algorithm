@@ -5,35 +5,85 @@ import java.util.StringTokenizer;
 
 public class Main {
 
+    static final int WIN = 0, DRAW = 1, LOSE = 2, NUM_OF_TEAM = 6;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static StringBuilder sb = new StringBuilder();
     static StringTokenizer st;
-    static long[] exp = {1_000_000_000_000_000L, 1_000_000_000_000L, 1_000_000_000L, 1_000_000L, 1_000L, 1L};
-    static long result;
-    static int[][] matchUp = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4},
-        {2, 5}, {3, 4}, {3, 5}, {4, 5}};
+    static int[][] matches, matchResult;
+    static boolean possible;
 
     public static void main(String[] args) throws IOException {
-        for (int tc = 0; tc < 4; tc++) {
-            result = Long.parseLong(br.readLine().replaceAll(" ", ""));
-            sb.append(solve(0, 0) ? "1" : "0").append(" ");
+        initMatches();
+
+        int testcases = 4;
+        while (testcases-- > 0) {
+            int numOfMatches = initMatchResult();
+
+            possible = false;
+            if (numOfMatches == 30) {
+                verifyMatchResult(0);
+            }
+
+            int result = (possible) ? 1 : 0;
+            System.out.print(result + " ");
         }
-        System.out.print(sb.toString());
     }
 
-    public static boolean solve(int n, long state) {
-        if (n == 15)
-            return state == result;
+    private static void verifyMatchResult(int matchIdx) {
+        if (possible)
+            return;
 
-        if (state > result)
-            return false;
+        if (matchIdx == matches.length) {
+            possible = true;
+            return;
+        }
 
-        int A = matchUp[n][0], B = matchUp[n][1];
+        int teamA = matches[matchIdx][0], teamB = matches[matchIdx][1];
 
-        long win = state + 100 * exp[A] + exp[B];
-        long draw = state + 10 * exp[A] + 10 * exp[B];
-        long lose = state + exp[A] + 100 * exp[B];
+        processMatchResult(matchIdx, teamA, teamB, WIN, LOSE);
+        processMatchResult(matchIdx, teamA, teamB, DRAW, DRAW);
+        processMatchResult(matchIdx, teamA, teamB, LOSE, WIN);
+    }
 
-        return solve(n + 1, win) || solve(n + 1, draw) || solve(n + 1, lose);
+    private static void processMatchResult(int matchIdx, int teamA, int teamB, int resultA, int resultB) {
+        if (matchResult[teamA][resultA] > 0 && matchResult[teamB][resultB] > 0) {
+            matchResult[teamA][resultA]--;
+            matchResult[teamB][resultB]--;
+            verifyMatchResult(matchIdx + 1);
+            matchResult[teamA][resultA]++;
+            matchResult[teamB][resultB]++;
+        }
+    }
+
+    private static int initMatchResult() throws IOException {
+        matchResult = new int[6][3];
+        st = new StringTokenizer(br.readLine());
+        int numOfMatches = 0;
+        for (int team = 0; team < NUM_OF_TEAM; team++) {
+            matchResult[team][WIN] = Integer.parseInt(st.nextToken());
+            matchResult[team][DRAW] = Integer.parseInt(st.nextToken());
+            matchResult[team][LOSE] = Integer.parseInt(st.nextToken());
+            numOfMatches += matchResult[team][WIN];
+            numOfMatches += matchResult[team][DRAW];
+            numOfMatches += matchResult[team][LOSE];
+        }
+        return numOfMatches;
+    }
+
+    private static void initMatches() {
+        int numOfMatches = 0;
+        for (int i = 0; i < NUM_OF_TEAM; i++) {
+            numOfMatches += i;
+        }
+
+        matches = new int[numOfMatches][2];
+
+        int idx = 0;
+        for (int teamA = 0; teamA < NUM_OF_TEAM - 1; teamA++) {
+            for (int teamB = teamA + 1; teamB < NUM_OF_TEAM; teamB++) {
+                matches[idx][0] = teamA;
+                matches[idx][1] = teamB;
+                idx++;
+            }
+        }
     }
 }
