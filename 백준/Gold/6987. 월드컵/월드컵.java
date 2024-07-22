@@ -25,6 +25,9 @@ public class Main {
         if (n == 15)
             return state == result;
 
+        if (state > result)
+            return false;
+
         int A = matchUp[n][0], B = matchUp[n][1];
 
         long win = state + 100 * exp[A] + exp[B];
