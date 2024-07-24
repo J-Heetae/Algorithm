@@ -60,15 +60,13 @@ public class Main {
     }
 
     private static int changeDir(int dir) {
-        if (dir == 1)
-            return 0;
-        if (dir == 2)
-            return 2;
-        if (dir == 3)
-            return 1;
-        if (dir == 4)
-            return 3;
-        return dir;
+        return switch (dir) {
+            case 1 -> 0;
+            case 2 -> 2;
+            case 3 -> 1;
+            case 4 -> 3;
+            default -> dir;
+        };
     }
 
     private static void catchShark(int c) {
