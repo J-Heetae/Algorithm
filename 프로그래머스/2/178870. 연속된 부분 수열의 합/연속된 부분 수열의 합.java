@@ -1,46 +1,30 @@
 class Solution {
-    public static void main(String[] args) {
-        Solution s = new Solution();
-        s.solution(new int[] {1, 1, 1, 2, 3, 4, 5}, 5);
-    }
-    public int[] solution(int[] sequence, int k) {
-        int[] answer = {};
-
-        int minLeftIdx = Integer.MAX_VALUE;
-        int minRightIdx = Integer.MAX_VALUE;
+    public int[] solution(int[] seq, int k) { 
+        int leftIdx = 0;
+        int rightIdx = 0;
+        int sum = seq[0];
+        int length = 1;
         int minLength = Integer.MAX_VALUE;
-        int left = 0;
-        int right = 0;
-
-        int sum = sequence[left];
-
-        while (right < sequence.length) {
-            if (sum < k) {
-                right++;
-                if (right == sequence.length) {
+        int[] answer = new int[2];
+        while(leftIdx <= rightIdx && rightIdx < seq.length) {
+            if(sum <= k) {
+                if(sum == k && length < minLength) {
+                    answer[0] = leftIdx;
+                    answer[1] = rightIdx;
+                    minLength = length;
+                }
+                rightIdx++;
+                if(rightIdx == seq.length) {
                     break;
                 }
-                sum += sequence[right];
-                continue;
-            }
-
-            if (sum == k) {
-                if (minLength > right - left) {
-                    minLength = right - left;
-                    minLeftIdx = left;
-                    minRightIdx = right;
-                }
-                sum -= sequence[left];
-                left++;
-                continue;
-            }
-
-            if (sum > k) {
-                sum -= sequence[left];
-                left++;
+                length++;
+                sum += seq[rightIdx];
+            } else {
+                sum -= seq[leftIdx];
+                leftIdx++;
+                length--;
             }
         }
-
-        return new int[]{minLeftIdx, minRightIdx};
+        return answer;
     }
 }
