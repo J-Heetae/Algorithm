@@ -48,47 +48,50 @@ public class Main {
             graph[b].add(new Edge(a, distance));
         }
 
-        // 최단 거리 찾기 (정점 1에서 n까지)
-        long beforeMinDistance = dijkstra(1, n, n);
-
         long maxDiffer = 0L;
-
-        // 최단 경로 상의 간선 추적
+        long beforeMinDistance = dijkstra(1, n, n);
         int path = n;
+
         while (prev[path] != -1) {
             int before = prev[path];
+            int orginDistance = 0;
 
-            // 경로 상의 간선에 대해 거리 두 배로 변경 후 차이 계산
-            for (Edge edge : graph[before]) {
-                if (edge.to == path) {
-                    int originalDistance = edge.distance;
-                    long doubledDistance = originalDistance * 2;
+            for (int i=0; i<graph[path].size(); i++) {
+                Edge edge1 = graph[path].get(i); 
+                if (edge1.to == before) {
+                    orginDistance = edge1.distance;
+                    edge1.distance *= 2;
+                    for (int j=0; j<graph[before].size(); j++) {
+                        Edge edge2 = graph[before].get(j);
+                        if (edge2.to == path) {
+                            edge2.distance *= 2;
 
-                    // 현재 edge만 수정된 상태로 다시 계산
-                    long afterMinDistance = dijkstraWithModifiedEdge(1, n, n, before, path, doubledDistance);
-                    maxDiffer = Math.max(maxDiffer, afterMinDistance - beforeMinDistance);
+                            long afterMinDistance = dijkstra(1, n, n);
+                            maxDiffer = Math.max(maxDiffer, afterMinDistance - beforeMinDistance);
+
+                            edge2.distance = orginDistance;
+                            break;
+                        }
+                    }
+                    edge1.distance = orginDistance;
                     break;
                 }
             }
-
-            path = prev[path];
+            path = before;
         }
-
         System.out.print(maxDiffer);
     }
 
-    // 다익스트라 알고리즘
     static long dijkstra(int start, int end, int n) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
         long[] distance = new long[n + 1];
         prev = new int[n + 1];
 
-        Arrays.fill(distance, Long.MAX_VALUE);
+        Arrays.fill(distance, Integer.MAX_VALUE);
         Arrays.fill(prev, -1);
 
         distance[start] = 0;
         pq.offer(new Node(start, 0L));
-
         while (!pq.isEmpty()) {
             Node current = pq.poll();
             int u = current.vertex;
@@ -99,47 +102,12 @@ public class Main {
 
             for (Edge edge : graph[u]) {
                 int v = edge.to;
-                long newDistance = distance[u] + edge.distance;
+                long newDistance = current.distance + edge.distance;
 
                 if (distance[v] > newDistance) {
                     prev[v] = u;
                     distance[v] = newDistance;
                     pq.offer(new Node(v, newDistance));
-                }
-            }
-        }
-        return distance[end];
-    }
-
-    // 특정 간선 가중치를 수정하고 다익스트라 실행
-    static long dijkstraWithModifiedEdge(int start, int end, int n, int modifyFrom, int modifyTo, long newDistance) {
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        long[] distance = new long[n + 1];
-        int[] localPrev = new int[n + 1];
-
-        Arrays.fill(distance, Long.MAX_VALUE);
-        Arrays.fill(localPrev, -1);
-
-        distance[start] = 0;
-        pq.offer(new Node(start, 0L));
-
-        while (!pq.isEmpty()) {
-            Node current = pq.poll();
-            int u = current.vertex;
-
-            if (distance[u] < current.distance) {
-                continue;
-            }
-
-            for (Edge edge : graph[u]) {
-                int v = edge.to;
-                long effectiveDistance = (u == modifyFrom && v == modifyTo) ? newDistance : edge.distance;
-                long newTotalDistance = distance[u] + effectiveDistance;
-
-                if (distance[v] > newTotalDistance) {
-                    localPrev[v] = u;
-                    distance[v] = newTotalDistance;
-                    pq.offer(new Node(v, newTotalDistance));
                 }
             }
         }
