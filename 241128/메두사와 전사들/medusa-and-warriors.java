@@ -43,7 +43,7 @@ public class Main {
 
         //최단거리 찾기
         int[][] minRoute = getMinRoute(map, new int[]{homeX, homeY}, new int[]{parkX, parkY});
-        if(minRoute == null) {
+        if(minRoute.length == 0) {
             System.out.print(-1);
         }
 
@@ -261,7 +261,7 @@ public class Main {
             }
         }
         if(prev[park[0]][park[1]][0] == -1 && prev[park[0]][park[1]][1] == -1) {
-            return null;
+            return new int[0][0];
         }
         return getRoute(prev, home, park);
     }
