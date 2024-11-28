@@ -34,7 +34,7 @@ public class Main {
             while(left < right) {
                 int mid = (left + right) / 2;
                 ArrayList<Integer> group = groupList.get(mid);
-                if(height >= group.get(0)) {
+                if(height >= group.get(group.size() - 1)) {
                     left = mid + 1;
                 } else {
                     right = mid;
