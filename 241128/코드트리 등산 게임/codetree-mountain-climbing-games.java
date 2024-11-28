@@ -4,6 +4,7 @@ import java.util.*;
 public class Main {
 
     static final int MAX = 1_000_000;
+    static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -28,7 +29,7 @@ public class Main {
                     break;
             }
         }
-
+        System.out.println(sb);
     }
 
     static class Map {
@@ -109,7 +110,7 @@ public class Main {
                     maxMountain = curr;
                 }
             }
-            System.out.println(totalScore + maxPrefix * MAX + maxMountain.height);
+            sb.append(totalScore + maxPrefix * MAX + maxMountain.height);
         }
     }
 }
