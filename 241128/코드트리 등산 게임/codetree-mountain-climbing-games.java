@@ -95,7 +95,7 @@ public class Main {
             totalScore += (long)cableCarPrefix * MAX;
             totalScore += MAX;
 
-            int maxPrefix = 0;
+            int maxPrefix = -1;
             Mountain maxMountain = head;
             Mountain curr = head;
             for(int i=0; i<size; i++) {
