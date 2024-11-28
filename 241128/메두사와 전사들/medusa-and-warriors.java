@@ -45,6 +45,7 @@ public class Main {
         int[][] minRoute = getMinRoute(map, new int[]{homeX, homeY}, new int[]{parkX, parkY});
         if(minRoute.length == 0) {
             System.out.print(-1);
+            System.exit(0);
         }
 
         StringBuilder sb = new StringBuilder();
