@@ -83,7 +83,8 @@ public class Main {
                 mountain.remove();
             }
             if(order == 400) {
-                sb.append(mountain.getMaxScore(sc.nextInt()));
+                sb.append(mountain.getMaxScore(sc.nextInt()))
+                    .append("\n");
             }
         }
         System.out.println(sb);
