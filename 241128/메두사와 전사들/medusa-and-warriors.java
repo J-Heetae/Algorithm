@@ -14,6 +14,7 @@ public class Main {
     static int[] dy = {0, 1, 1, 1, 0, -1, -1, -1};
 
     static int n;
+    static int[][] sight;
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -67,6 +68,13 @@ public class Main {
             //메두사의 시선
             int stone = eyes(x, y, warriors, status);
 
+            for(int i=0; i<n; i++) {
+                for(int j=0; j<n; j++) {
+                    // System.out.print(sight[i][j] + " ");
+                }
+                // System.out.println();
+            }
+
             //전사들 이동
             int moveCount = 0;
             for(int i=0; i<warriors.length; i++) {
@@ -77,8 +85,7 @@ public class Main {
                         if(warrior[0] == x && warrior[1] == y) {
                             break;
                         }
-                        warriorMove(j, warrior, x, y);
-                        moveCount++;
+                        moveCount += warriorMove(j, warrior, x, y);
                     }
                     // System.out.println("전사" + (i + 1) + " 이동 후 위치 = " + warrior[0] + " " + warrior[1]);
                 }
@@ -103,25 +110,29 @@ public class Main {
         System.out.println(sb);
     }
 
-    static void warriorMove(int count, int[] pos, int targetX, int targetY) {
+    static int warriorMove(int count, int[] pos, int targetX, int targetY) {
+        int move = 0;
         int originDis = Math.abs(pos[0] - targetX) + Math.abs(pos[1] - targetY);
         for(int d : warriorDir[count]) {
             int nx = pos[0] + dx[d];
             int ny = pos[1] + dy[d];
-            if(nx < 0 || ny < 0 || nx >= n || ny >= n ) {
+            if(nx < 0 || ny < 0 || nx >= n || ny >= n || sight[nx][ny] == 1) {
                 continue;
             }
             int dis = Math.abs(nx - targetX) + Math.abs(ny - targetY);
             if(dis < originDis) {
                 pos[0] = nx;
                 pos[1] = ny;
+                move++;
                 break;
             }
         }
+        return move;
     }
 
     static int eyes(int x, int y, int[][] warriors, int[] status) {
         int maxCount = -1;
+        int maxDir = -1;
         int[][] effected = null;
         //네 방향중에 어디가 더 많은 전사를 돌로 만드냐
         for(int i : dir) {
@@ -170,10 +181,12 @@ public class Main {
             }
 
             if(maxCount < count) {
+                maxDir = i;
                 maxCount = count;
                 effected = map;
             }
         }
+        // System.out.println("메두사 시선 방향" + maxDir);
         //전사 상태 변경
         for(int i = 0; i < warriors.length; i++) {
             int[] warrior = warriors[i];
@@ -182,6 +195,7 @@ public class Main {
                 status[i] = 2;
             }
         }
+        sight = effected;
         return maxCount;
     }
 
@@ -209,6 +223,7 @@ public class Main {
                     map[nnx][nny] = type;
                 }
             }
+            depth++;
         }
     }
 
