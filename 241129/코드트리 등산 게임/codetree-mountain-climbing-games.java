@@ -24,10 +24,8 @@ public class Main {
             groupIdxList.add(idx);
             if(idx == groupList.size()) {
                 groupList.add(new ArrayList<>());
-                groupList.get(idx).add(height);
-            } else {
-                groupList.get(idx).add(height);
             }
+            groupList.get(idx).add(height);
         }
 
         int searchIdx(int height) {
@@ -47,6 +45,8 @@ public class Main {
 
         void remove() {
             int groupIdx = groupIdxList.get(groupIdxList.size() - 1);
+            groupIdxList.remove(groupIdxList.size() - 1);
+
             ArrayList<Integer> group = groupList.get(groupIdx);
             group.remove(group.size() - 1);
             if(group.size() == 0) {
