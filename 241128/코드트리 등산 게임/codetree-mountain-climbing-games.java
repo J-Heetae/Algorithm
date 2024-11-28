@@ -110,7 +110,7 @@ public class Main {
                     maxMountain = curr;
                 }
             }
-            sb.append(totalScore + maxPrefix * MAX + maxMountain.height);
+            sb.append(totalScore + maxPrefix * MAX + maxMountain.height).append("\n");
         }
     }
 }
