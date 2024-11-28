@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 
 public class Main {
 
@@ -11,10 +12,10 @@ public class Main {
             groupIdxList = new ArrayList<>();
         }
 
-        void init() {
-            int n = sc.nextInt();
+        void init(StringTokenizer st) {
+            int n = Integer.parseInt(st.nextToken());
             for(int i=0; i<n; i++) {
-                int height = sc.nextInt();
+                int height = Integer.parseInt(st.nextToken());
                 add(height);
             }
         }
@@ -64,26 +65,27 @@ public class Main {
     }
 
     final static int SCORE = 1_000_000;
-    final static Scanner sc = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         StringBuilder sb = new StringBuilder();
         Mountain mountain = new Mountain();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int q = sc.nextInt();
+        int q = Integer.parseInt(br.readLine());
         while(q-- > 0) {
-            int order = sc.nextInt();
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int order = Integer.parseInt(st.nextToken());
             if(order == 100) {
-                mountain.init();
+                mountain.init(st);
             }
             if(order == 200) {
-                mountain.add(sc.nextInt());
+                mountain.add(Integer.parseInt(st.nextToken()));
             }
             if(order == 300) {
                 mountain.remove();
             }
             if(order == 400) {
-                sb.append(mountain.getMaxScore(sc.nextInt()))
+                sb.append(mountain.getMaxScore(Integer.parseInt(st.nextToken())))
                     .append("\n");
             }
         }
