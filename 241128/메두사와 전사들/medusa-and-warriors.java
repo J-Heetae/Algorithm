@@ -1,13 +1,7 @@
 import java.util.*;
 
-// 1.상하좌우 2.좌우상하
-// 메두사의 시야
-// 맨해튼 거리
-// {전사 이동거리 합, 돌이 된 전사 합, 공격한 전사 합}
-
 public class Main {
 
-    //상0하4좌6우2 (대각선 포함)
     static int[] dir = {0, 4, 6, 2};
     static int[][] warriorDir = {{0, 4, 6, 2}, {6, 2, 0, 4}};
     static int[] dx = {-1, -1, 0, 1, 1, 1, 0, -1};
@@ -41,7 +35,6 @@ public class Main {
             }
         }
 
-        //최단거리 찾기
         int[][] minRoute = getMinRoute(map, new int[]{homeX, homeY}, new int[]{parkX, parkY});
         if(minRoute.length == 0) {
             System.out.print(-1);
@@ -49,7 +42,7 @@ public class Main {
         }
 
         StringBuilder sb = new StringBuilder();
-        int[] status = new int[warriors.length]; //0정상 1사망 2돌
+        int[] status = new int[warriors.length];
         for(int[] next : minRoute) {
             int x = next[0];
             int y = next[1];
@@ -64,42 +57,27 @@ public class Main {
                 }
             }
 
-            // System.out.println("메두사 위치  = " + x + " " + y);
-
-            //메두사의 시선
             int stone = eyes(x, y, warriors, status);
 
-            for(int i=0; i<n; i++) {
-                for(int j=0; j<n; j++) {
-                    // System.out.print(sight[i][j] + " ");
-                }
-                // System.out.println();
-            }
-
-            //전사들 이동
             int moveCount = 0;
             for(int i=0; i<warriors.length; i++) {
                 int[] warrior = warriors[i];
                 if(status[i] == 0) {
-                    // System.out.println("전사" + (i + 1) + " 이동 전 위치 = " + warrior[0] + " " + warrior[1]);
                     for(int j=0; j<2; j++) {
                         if(warrior[0] == x && warrior[1] == y) {
                             break;
                         }
                         moveCount += warriorMove(j, warrior, x, y);
                     }
-                    // System.out.println("전사" + (i + 1) + " 이동 후 위치 = " + warrior[0] + " " + warrior[1]);
                 }
             }
             
-            //공격한 전사
             int attack = 0;
             for(int i=0; i<warriors.length; i++) {
                 int[] warrior = warriors[i];
                 if(status[i] == 0 && warrior[0] == x && warrior[1] == y) {
-                    // System.out.println("전사 사망");
                     attack++;
-                    status[i] = 1; //사망
+                    status[i] = 1;
                 }
             }
             sb.append(moveCount).append(" ")
@@ -135,12 +113,10 @@ public class Main {
         int maxCount = -1;
         int maxDir = -1;
         int[][] effected = null;
-        //네 방향중에 어디가 더 많은 전사를 돌로 만드냐
         for(int i : dir) {
             int count = 0;
             int[][] map = new int[n][n];
 
-            //채우기
             List<Integer> side = new ArrayList<>();
             if(i == 0 || i == 4) {
                 side.add(2);
@@ -151,10 +127,9 @@ public class Main {
             }
             fillEyes(map, x, y, i, side, 1);
 
-            //채운곳에 전사 있는지 찾기
             for(int j = 0; j < warriors.length; j++) {
                 int[] warrior = warriors[j];
-                if(status[j] == 0 && map[warrior[0]][warrior[1]] == 1) { //메두사 시야에 있으면
+                if(status[j] == 0 && map[warrior[0]][warrior[1]] == 1) {
                     side = new ArrayList<>();
                     if(i == 0 || i == 4) {
                         if(y > warrior[1]) {
@@ -173,7 +148,6 @@ public class Main {
                 }
             }
 
-            //다시 한번 돌이된 전사 확인
             for(int j = 0; j < warriors.length; j++) {
                 int[] warrior = warriors[j];
                 if(status[j] == 0 && map[warrior[0]][warrior[1]] == 1) {
@@ -187,12 +161,10 @@ public class Main {
                 effected = map;
             }
         }
-        // System.out.println("메두사 시선 방향" + maxDir);
-        //전사 상태 변경
+
         for(int i = 0; i < warriors.length; i++) {
             int[] warrior = warriors[i];
             if(status[i] == 0 && effected[warrior[0]][warrior[1]] == 1) {
-                // System.out.println("돌된 전사 위치 = " + warrior[0] + " " + warrior[1]);
                 status[i] = 2;
             }
         }
@@ -215,7 +187,7 @@ public class Main {
             for(int s : side) {
                 int nnx = nx;
                 int nny = ny;
-                for(int j=0; j<depth; j++) { //좌
+                for(int j=0; j<depth; j++) {
                     nnx += dx[s];
                     nny += dy[s];
                     if(nnx < 0 || nny < 0 || nnx >= n || nny >= n) {
