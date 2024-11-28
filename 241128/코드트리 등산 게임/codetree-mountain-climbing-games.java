@@ -1,104 +1,69 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
-
-    static final int MAX = 1_000_000;
-    static StringBuilder sb = new StringBuilder();
+    static List<List<Integer>> mount = new ArrayList<>(); // 산 그룹 저장
+    static List<Integer> index = new ArrayList<>(); // 각 산의 그룹 인덱스 저장
+    static int Q; // 명령어 수
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int Q = sc.nextInt() - 1;
-
-        Map map = new Map();
-        sc.nextInt();
-        int n = sc.nextInt();
-        for (int i = 0; i < n; i++) {
-            map.add(sc.nextInt());
-        }
+        Q = sc.nextInt();
 
         while (Q-- > 0) {
-            int order = sc.nextInt();
-
-            switch (order) {
-                case 200:
-                    map.add(sc.nextInt());
-                    break;
-                case 300:
-                    map.remove();
-                    break;
-                case 400:
-                    map.simulation(sc.nextInt());
-                    break;
+            int o = sc.nextInt(); // 명령어 입력
+            if (o == 100) {
+                int n = sc.nextInt();
+                for (int i = 0; i < n; i++) {
+                    int h = sc.nextInt();
+                    int idx = search(h);
+                    index.add(idx);
+                    if (idx == mount.size()) {
+                        mount.add(new ArrayList<>());
+                    }
+                    mount.get(idx).add(h);
+                }
+            } else if (o == 200) {
+                int h = sc.nextInt();
+                int idx = search(h);
+                index.add(idx);
+                if (idx == mount.size()) {
+                    mount.add(new ArrayList<>());
+                }
+                mount.get(idx).add(h);
+            } else if (o == 300) {
+                int idx = index.remove(index.size() - 1);
+                mount.get(idx).remove(mount.get(idx).size() - 1);
+                if (mount.get(mount.size() - 1).isEmpty()) {
+                    mount.remove(mount.size() - 1);
+                }
+            } else if (o == 400) {
+                int mIdx = sc.nextInt() - 1; // 케이블카 위치 (0-based)
+                int groupIndex = index.get(mIdx);
+                int score = (groupIndex + mount.size()) * 1_000_000 + mount.get(mount.size() - 1).get(0);
+                System.out.println(score);
             }
         }
-        System.out.println(sb);
+
+        sc.close();
     }
 
-    static class Map {
-        class Mountain {
-            int height;
-            int prefix;
+    // 이분 탐색으로 삽입 위치를 찾음
+    static int search(int h) {
+        int start = 0, end = mount.size() - 1;
+        int idx = mount.size();
 
-            Mountain(int height) {
-                this.height = height;
-                this.prefix = 0;
+        while (start <= end) {
+            int mid = (start + end) / 2;
+            if (h <= mount.get(mid).get(mount.get(mid).size() - 1)) {
+                idx = mid;
+                end = mid - 1;
+            } else {
+                start = mid + 1;
             }
         }
 
-        List<Mountain> mountains;
-        TreeMap<Integer, Integer> prefixMap; // prefix -> 최대 높이 관리
-
-        Map() {
-            mountains = new ArrayList<>();
-            prefixMap = new TreeMap<>();
-        }
-
-        void add(int height) {
-            Mountain newMountain = new Mountain(height);
-            int newPrefix = 0;
-
-            // 이전 산들과 비교하여 prefix 계산
-            if (!mountains.isEmpty() && mountains.get(mountains.size() - 1).height < height) {
-                newPrefix = mountains.get(mountains.size() - 1).prefix + 1;
-            }
-
-            newMountain.prefix = newPrefix;
-            mountains.add(newMountain);
-
-            // prefixMap 업데이트
-            prefixMap.put(newPrefix, Math.max(prefixMap.getOrDefault(newPrefix, 0), height));
-        }
-
-        void remove() {
-            if (mountains.isEmpty()) return;
-
-            Mountain removedMountain = mountains.remove(mountains.size() - 1);
-
-            // prefixMap에서 제거 또는 업데이트
-            if (prefixMap.get(removedMountain.prefix) == removedMountain.height) {
-                prefixMap.remove(removedMountain.prefix);
-                for (Mountain mountain : mountains) {
-                    if (mountain.prefix == removedMountain.prefix) {
-                        prefixMap.put(removedMountain.prefix, Math.max(prefixMap.getOrDefault(removedMountain.prefix, 0), mountain.height));
-                    }
-                }
-            }
-        }
-
-        void simulation(int cableCarIdx) {
-            long totalScore = 0L;
-            Mountain cableCar = mountains.get(cableCarIdx - 1);
-
-            // 케이블카 점수
-            totalScore += (long) cableCar.prefix * MAX;
-            totalScore += MAX;
-
-            // prefixMap에서 최대값 탐색
-            int maxPrefix = prefixMap.lastKey();
-            int maxHeight = prefixMap.get(maxPrefix);
-
-            totalScore += (long) maxPrefix * MAX + maxHeight;
-            sb.append(totalScore).append("\n");
-        }
+        return idx;
     }
 }
