@@ -34,10 +34,10 @@ public class Main {
             while(left < right) {
                 int mid = (left + right) / 2;
                 ArrayList<Integer> group = groupList.get(mid);
-                if(height >= group.get(group.size() - 1)) {
-                    left = mid + 1;
-                } else {
+                if(height <= group.get(group.size() - 1)) {
                     right = mid;
+                } else {
+                    left = mid + 1;
                 }
             }
             return right;
