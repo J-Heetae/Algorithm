@@ -1,4 +1,3 @@
-
 import java.util.*;
 
 public class Main {
@@ -13,19 +12,22 @@ public class Main {
         Map map = new Map();
         sc.nextInt();
         int n = sc.nextInt();
-        for(int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             map.add(sc.nextInt());
         }
 
-        while(Q-- > 0) {
+        while (Q-- > 0) {
             int order = sc.nextInt();
 
-            switch(order) {
-                case 200 : map.add(sc.nextInt());
+            switch (order) {
+                case 200:
+                    map.add(sc.nextInt());
                     break;
-                case 300 : map.remove();
+                case 300:
+                    map.remove();
                     break;
-                case 400 : map.simulation(sc.nextInt());
+                case 400:
+                    map.simulation(sc.nextInt());
                     break;
             }
         }
@@ -36,81 +38,67 @@ public class Main {
         class Mountain {
             int height;
             int prefix;
-            Mountain next;
-            Mountain prev;
 
             Mountain(int height) {
                 this.height = height;
                 this.prefix = 0;
-                this.next = null;
-                this.prev = null;
             }
         }
 
-        Mountain head;
-        Mountain tail;
-        int size;
+        List<Mountain> mountains;
+        TreeMap<Integer, Integer> prefixMap; // prefix -> 최대 높이 관리
 
         Map() {
-            Mountain newMountain = new Mountain(MAX);
-            this.head = newMountain;
-            this.tail = newMountain;
-            this.size = 0;
+            mountains = new ArrayList<>();
+            prefixMap = new TreeMap<>();
         }
 
         void add(int height) {
             Mountain newMountain = new Mountain(height);
-            newMountain.prev = tail;
-            tail.next = newMountain;
-            tail = newMountain;
-            size++;
+            int newPrefix = 0;
 
-            Mountain compare = tail.prev;
-            for(int i=0; i<size - 1; i++) {
-                if(compare.height < tail.height) {
-                    tail.prefix = Math.max(tail.prefix, compare.prefix + 1);
-                }
-                compare = compare.prev;
+            // 이전 산들과 비교하여 prefix 계산
+            if (!mountains.isEmpty() && mountains.get(mountains.size() - 1).height < height) {
+                newPrefix = mountains.get(mountains.size() - 1).prefix + 1;
             }
+
+            newMountain.prefix = newPrefix;
+            mountains.add(newMountain);
+
+            // prefixMap 업데이트
+            prefixMap.put(newPrefix, Math.max(prefixMap.getOrDefault(newPrefix, 0), height));
         }
 
         void remove() {
-            Mountain newTail = tail.prev;
-            newTail.next = null;
-            tail = newTail;
-            size--;
-        }
+            if (mountains.isEmpty()) return;
 
-        Mountain get(int idx) {
-            Mountain curr = head;
-            for(int i=0; i<idx; i++) {
-                curr = curr.next;
+            Mountain removedMountain = mountains.remove(mountains.size() - 1);
+
+            // prefixMap에서 제거 또는 업데이트
+            if (prefixMap.get(removedMountain.prefix) == removedMountain.height) {
+                prefixMap.remove(removedMountain.prefix);
+                for (Mountain mountain : mountains) {
+                    if (mountain.prefix == removedMountain.prefix) {
+                        prefixMap.put(removedMountain.prefix, Math.max(prefixMap.getOrDefault(removedMountain.prefix, 0), mountain.height));
+                    }
+                }
             }
-            return curr;
         }
 
         void simulation(int cableCarIdx) {
             long totalScore = 0L;
-            Mountain cableCar = get(cableCarIdx);
-            int cableCarPrefix = cableCar.prefix;
-            totalScore += (long)cableCarPrefix * MAX;
+            Mountain cableCar = mountains.get(cableCarIdx - 1);
+
+            // 케이블카 점수
+            totalScore += (long) cableCar.prefix * MAX;
             totalScore += MAX;
 
-            int maxPrefix = -1;
-            Mountain maxMountain = head;
-            Mountain curr = head;
-            for(int i=0; i<size; i++) {
-                curr = curr.next;
-                if(maxPrefix == curr.prefix) {
-                    if(maxMountain.height < curr.height) {
-                        maxMountain = curr;
-                    }
-                } else if (maxPrefix < curr.prefix) {
-                    maxPrefix = curr.prefix;
-                    maxMountain = curr;
-                }
-            }
-            sb.append(totalScore + maxPrefix * MAX + maxMountain.height).append("\n");
+            // prefixMap에서 최대값 탐색
+            int maxPrefix = prefixMap.lastKey();
+            int maxHeight = prefixMap.get(maxPrefix);
+
+            totalScore += (long) maxPrefix * MAX + maxHeight;
+            sb.append(totalScore).append("\n");
         }
     }
 }
