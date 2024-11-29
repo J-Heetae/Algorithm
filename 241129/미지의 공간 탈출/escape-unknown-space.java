@@ -10,8 +10,7 @@ public class Main {
     static int[][] map;
     static int[][][] walls;
     static Phnomenon[] pArr;
-    static boolean[][] mapVisited;
-    static boolean[][][] wallsVisited;
+    static boolean[][][] visited;
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -21,48 +20,28 @@ public class Main {
 
         Arrays.fill(connected, -1);
         map = new int[n][n];
-        for(int i=0; i<n; i++) {
-            for(int j=0; j<n; j++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
                 map[i][j] = sc.nextInt();
-                if(map[i][j] == 3) {
-                    if(connected[0] == -1 || connected[0] < j) {
-                        connected[0] = j;
-                    }
-                    if(connected[1] == -1 || connected[1] > j) {
-                        connected[1] = j;
-                    }
-                    if(connected[2] == -1 || connected[2] < i) {
-                        connected[2] = i;
-                    }
-                    if(connected[3] == -1 || connected[3] > i) {
-                        connected[3] = i;
-                    }
+                if (map[i][j] == 3) {
+                    updateConnected(i, j);
                 }
             }
         }
 
-        //동서남북위
+        // 동서남북위
         walls = new int[5][m][m];
-        for(int i=0; i<5; i++) {
-            for(int j=0; j<m; j++) {
-                for(int k=0; k<m; k++) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < m; j++) {
+                for (int k = 0; k < m; k++) {
                     walls[i][j][k] = sc.nextInt();
                 }
             }
         }
 
-        int[] start = new int[2];
-        for(int i=0; i<m; i++) {
-            for(int j=0; j<m; j++) {
-                if(walls[4][i][j] == 2) {
-                    start[0] = i;
-                    start[1] = j;
-                }
-            }
-        }
-
+        int[] start = findStart();
         pArr = new Phnomenon[f];
-        for(int i=0; i<f; i++) {
+        for (int i = 0; i < f; i++) {
             int x = sc.nextInt();
             int y = sc.nextInt();
             int d = sc.nextInt();
@@ -70,32 +49,47 @@ public class Main {
             pArr[i] = new Phnomenon(x, y, d, v, 5);
             map[x][y] = 5;
         }
-        
+
         int result = simulation(start[0], start[1]);
         System.out.println(result);
     }
 
+    static void updateConnected(int i, int j) {
+        connected[0] = Math.max(connected[0], j); // 동
+        connected[1] = (connected[1] == -1) ? j : Math.min(connected[1], j); // 서
+        connected[2] = Math.max(connected[2], i); // 남
+        connected[3] = (connected[3] == -1) ? i : Math.min(connected[3], i); // 북
+    }
+
+    static int[] findStart() {
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < m; j++) {
+                if (walls[4][i][j] == 2) {
+                    return new int[]{i, j};
+                }
+            }
+        }
+        return new int[]{-1, -1}; // 시작점이 없는 경우
+    }
+
     static int simulation(int x, int y) {
         int turn = 0;
-
-        Queue<TimeMachine> que = new LinkedList<>();
-        mapVisited = new boolean[n][n];
-        wallsVisited = new boolean[5][m][m];
+        Queue<TimeMachine> queue = new LinkedList<>();
+        visited = new boolean[6][Math.max(n, m)][Math.max(n, m)];
         boolean[] pStop = new boolean[f];
 
-        que.offer(new TimeMachine(x, y, 4, turn));
-        wallsVisited[4][x][y] = true;
+        queue.offer(new TimeMachine(x, y, 4, turn));
+        visited[4][x][y] = true;
 
-        // pos : 0동 1서 2남 3북 4위 5맵
-        outer:
-        while(true) {
+        while (!queue.isEmpty()) {
             turn++;
-            //시간 이상 현상
-            for(int i=0; i<f; i++) {
-                if(!pStop[i] && ((turn % pArr[i].v) == 0)) {
+
+            // 시간 이상 현상 처리
+            for (int i = 0; i < f; i++) {
+                if (!pStop[i] && (turn % pArr[i].v == 0)) {
                     Phnomenon curr = pArr[i];
                     int[] next = move(curr.x, curr.y, curr.d, curr.pos, 1);
-                    if(next[0] != -1) {
+                    if (next[0] != -1) {
                         curr.x = next[0];
                         curr.y = next[1];
                         curr.pos = next[2];
@@ -106,40 +100,30 @@ public class Main {
                 }
             }
 
-            while(!que.isEmpty()) {
-                if(que.peek().turn == turn) {
-                    break;
+            int size = queue.size();
+            while (size-- > 0) {
+                TimeMachine curr = queue.poll();
+
+                if (curr.pos == 5 && map[curr.x][curr.y] == 4) {
+                    return curr.turn; // 도착
                 }
 
-                TimeMachine curr = que.poll();
-
-                if(curr.pos == 5 && map[curr.x][curr.y] == 4) { //도착
-                    return curr.turn;
-                }
-
-                //타임머신 이동
-                for(int d=0; d<4; d++) {
+                for (int d = 0; d < 4; d++) {
                     int[] next = move(curr.x, curr.y, d, curr.pos, 0);
-                    if(next[0] != -1) {
-                        que.offer(new TimeMachine(next[0], next[1], next[2], turn));
+                    if (next[0] != -1) {
+                        queue.offer(new TimeMachine(next[0], next[1], next[2], turn));
                     }
                 }
-            }
-            if(que.isEmpty()) {
-                break;
             }
         }
         return -1;
     }
 
     static boolean isValid(int x, int y, int pos, int type) {
-        if(pos <= 4) {
-            return walls[pos][x][y] != 1 && !wallsVisited[pos][x][y];
+        if (pos <= 4) {
+            return x >= 0 && y >= 0 && x < m && y < m && walls[pos][x][y] != 1 && !visited[pos][x][y];
         } else {
-            if(type == 1) {
-                return map[x][y] == 0 || map[x][y] == 5 || map[x][y] == 2;
-            }
-            return (map[x][y] == 0 || map[x][y] == 4) && !mapVisited[x][y];
+            return x >= 0 && y >= 0 && x < n && y < n && (type == 1 ? map[x][y] == 0 || map[x][y] == 5 || map[x][y] == 2 : map[x][y] == 0 || map[x][y] == 4) && !visited[pos][x][y];
         }
     }
 
@@ -147,235 +131,24 @@ public class Main {
         int nx = x + dx[d];
         int ny = y + dy[d];
 
-        if(pos == 0) { //동
-            if(nx < 0) { //위의 우측
-                int nnx = (m - 1) - ny;
-                int nny = m - 1;
-                pos = 4;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(nx >= m) { //바닥
-                int nnx = connected[3] + ((m - 1) - ny);
-                int nny = connected[pos] + 1;
-                pos = 5;
-
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
-                    mapVisited[nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny < 0) { //남의 오른쪽
-                int nnx = nx;
-                int nny = m - 1;
-                pos = 2;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny >= m) { //북의 왼쪽
-                int nnx = nx;
-                int nny = 0;
-                pos = 3;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else {
-                if (isValid(nx, ny, pos, type)){
-                    wallsVisited[pos][nx][ny] = true;
-                    return new int[]{nx, ny, pos};
-                }
-            }
-        } else if(pos == 1) { //서
-            if(nx < 0) { //위의 좌측
-                int nnx = ny;
-                int nny = 0;
-                pos = 4;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(nx >= m) { //바닥
-                int nnx = connected[3] + ny;
-                int nny = connected[pos] - 1;
-                pos = 5;
-
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
-                    mapVisited[nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny < 0) { //북의 오른쪽
-                int nnx = nx;
-                int nny = m - 1;
-                pos = 3;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny >= m) { //남의 왼쪽
-                int nnx = nx;
-                int nny = 0;
-                pos = 2;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else {
-                if (isValid(nx, ny, pos, type)){
-                    wallsVisited[pos][nx][ny] = true;
-                    return new int[]{nx, ny, pos};
-                }
-            }
-        } else if(pos == 2) { //남
-            if(nx < 0) { //위의 하단
-                int nnx = m - 1;
-                int nny = ny;
-                pos = 4;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(nx >= m) { //바닥
-                int nnx = connected[pos] + 1;
-                int nny = connected[1] + ny;
-                pos = 5;
-
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
-                    mapVisited[nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny < 0) { //서의 오른쪽
-                int nnx = nx;
-                int nny = m - 1;
-                pos = 1;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny >= m) { //동의 왼쪽
-                int nnx = nx;
-                int nny = 0;
-                pos = 0;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else {
-                if (isValid(nx, ny, pos, type)){
-                    wallsVisited[pos][nx][ny] = true;
-                    return new int[]{nx, ny, pos};
-                }
-            }
-        } else if(pos == 3) { //북
-            if(nx < 0) { //위의 위쪽
-                int nnx = 0;
-                int nny = (m - 1) - ny;
-                pos = 4;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(nx >= m) { //바닥
-                int nnx = connected[pos] - 1;
-                int nny = connected[1] + ((m - 1) - ny);
-                pos = 5;
-
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
-                    mapVisited[nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny < 0) { //동의 오른쪽
-                int nnx = nx;
-                int nny = m - 1;
-                pos = 0;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny >= m) { //서의 왼쪽
-                int nnx = nx;
-                int nny = 0;
-                pos = 1;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else {
-                if (isValid(nx, ny, pos, type)){
-                    wallsVisited[pos][nx][ny] = true;
-                    return new int[]{nx, ny, pos};
-                }
-            }
-        } else if(pos == 4) { //위
-            if(nx < 0) { //북의 위쪽
-                int nnx = 0;
-                int nny = (m - 1) - ny;
-                pos = 3;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(nx >= m) { //남의 위쪽
-                int nnx = 0;
-                int nny = ny;
-                pos = 2;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny < 0) { //서의 위쪽
-                int nnx = 0;
-                int nny = nx;
-                pos = 1;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else if(ny >= m) { //동의 위쪽
-                int nnx = 0;
-                int nny = (m - 1) - nx;
-                pos = 0;
-
-                if(isValid(nnx, nny, pos, type)) {
-                    wallsVisited[pos][nnx][nny] = true;
-                    return new int[]{nnx, nny, pos};
-                }
-            } else {
-                if (isValid(nx, ny, pos, type)){
-                    wallsVisited[pos][nx][ny] = true;
-                    return new int[]{nx, ny, pos};
-                }
-            }
-        } else if(pos == 5) { //바닥
-            if(nx >= 0 && ny >= 0 && nx < n && ny < n && isValid(nx, ny, pos, type)) {
-                mapVisited[nx][ny] = true;
-                return new int[]{nx, ny, 5};
-            }
+        if (isValid(nx, ny, pos, type)) {
+            visited[pos][nx][ny] = true;
+            return new int[]{nx, ny, pos};
         }
+
+        if (pos == 0 && nx < 0) return adjustPosition(ny, m - 1, 4); // 동
+        if (pos == 1 && nx < 0) return adjustPosition(ny, 0, 4); // 서
+        if (pos == 2 && nx >= m) return adjustPosition(connected[2] + 1, connected[1] + ny, 5); // 남
+        if (pos == 3 && nx >= m) return adjustPosition(connected[3] - 1, connected[1] + (m - 1 - ny), 5); // 북
         return new int[]{-1, -1, -1};
     }
 
+    static int[] adjustPosition(int x, int y, int newPos) {
+        return isValid(x, y, newPos, 0) ? new int[]{x, y, newPos} : new int[]{-1, -1, -1};
+    }
+
     static class TimeMachine {
-        int x;
-        int y;
-        int pos;
-        int turn;
+        int x, y, pos, turn;
 
         TimeMachine(int x, int y, int pos, int turn) {
             this.x = x;
@@ -386,11 +159,7 @@ public class Main {
     }
 
     static class Phnomenon {
-        int x;
-        int y;
-        int d;
-        int v;
-        int pos;
+        int x, y, d, v, pos;
 
         Phnomenon(int x, int y, int d, int v, int pos) {
             this.x = x;
