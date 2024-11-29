@@ -68,7 +68,7 @@ public class Main {
             int d = sc.nextInt();
             int v = sc.nextInt();
             pArr[i] = new Phnomenon(x, y, d, v, 5);
-            map[x][y] = 1;
+            map[x][y] = 5;
         }
         
         int result = simulation(start[0], start[1]);
@@ -94,19 +94,17 @@ public class Main {
             for(int i=0; i<f; i++) {
                 if(!pStop[i] && ((turn % pArr[i].v) == 0)) {
                     Phnomenon curr = pArr[i];
-                    int[] next = move(curr.x, curr.y, curr.d, curr.pos);
+                    int[] next = move(curr.x, curr.y, curr.d, curr.pos, 1);
                     if(next[0] != -1) {
                         curr.x = next[0];
                         curr.y = next[1];
                         curr.pos = next[2];
-                        map[curr.x][curr.y] = 1;
+                        map[curr.x][curr.y] = 5;
                     } else {
                         pStop[i] = true;
                     }
                 }
             }
-
-            // System.out.println("turn = " + turn);
 
             while(!que.isEmpty()) {
                 if(que.peek().turn == turn) {
@@ -116,15 +114,13 @@ public class Main {
                 TimeMachine curr = que.poll();
 
                 if(curr.pos == 5 && map[curr.x][curr.y] == 4) { //도착
-                    // System.out.println("arrival!");
                     return curr.turn;
                 }
 
                 //타임머신 이동
                 for(int d=0; d<4; d++) {
-                    int[] next = move(curr.x, curr.y, d, curr.pos);
+                    int[] next = move(curr.x, curr.y, d, curr.pos, 0);
                     if(next[0] != -1) {
-                        // System.out.println(next[0] + ", " + next[1] + ", " + next[2] + ", " + turn);
                         que.offer(new TimeMachine(next[0], next[1], next[2], turn));
                     }
                 }
@@ -136,15 +132,18 @@ public class Main {
         return -1;
     }
 
-    static boolean isValid(int x, int y, int pos) {
+    static boolean isValid(int x, int y, int pos, int type) {
         if(pos <= 4) {
             return walls[pos][x][y] != 1 && !wallsVisited[pos][x][y];
         } else {
-            return map[x][y] != 1 && !mapVisited[x][y];
+            if(type == 1) {
+                return map[x][y] == 0 || map[x][y] == 5 || map[x][y] == 2;
+            }
+            return (map[x][y] == 0 || map[x][y] == 4) && !mapVisited[x][y];
         }
     }
 
-    static int[] move(int x, int y, int d, int pos) {
+    static int[] move(int x, int y, int d, int pos, int type) {
         int nx = x + dx[d];
         int ny = y + dy[d];
 
@@ -154,7 +153,7 @@ public class Main {
                 int nny = m - 1;
                 pos = 4;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -163,7 +162,7 @@ public class Main {
                 int nny = connected[pos] + 1;
                 pos = 5;
 
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos)) {
+                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
                     mapVisited[nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -172,7 +171,7 @@ public class Main {
                 int nny = m - 1;
                 pos = 2;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -181,12 +180,12 @@ public class Main {
                 int nny = 0;
                 pos = 3;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
             } else {
-                if (isValid(nx, ny, pos)){
+                if (isValid(nx, ny, pos, type)){
                     wallsVisited[pos][nx][ny] = true;
                     return new int[]{nx, ny, pos};
                 }
@@ -197,7 +196,7 @@ public class Main {
                 int nny = 0;
                 pos = 4;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -206,7 +205,7 @@ public class Main {
                 int nny = connected[pos] - 1;
                 pos = 5;
 
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos)) {
+                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
                     mapVisited[nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -215,7 +214,7 @@ public class Main {
                 int nny = m - 1;
                 pos = 3;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -224,12 +223,12 @@ public class Main {
                 int nny = 0;
                 pos = 2;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
             } else {
-                if (isValid(nx, ny, pos)){
+                if (isValid(nx, ny, pos, type)){
                     wallsVisited[pos][nx][ny] = true;
                     return new int[]{nx, ny, pos};
                 }
@@ -240,7 +239,7 @@ public class Main {
                 int nny = ny;
                 pos = 4;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -249,7 +248,7 @@ public class Main {
                 int nny = connected[1] + ny;
                 pos = 5;
 
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos)) {
+                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
                     mapVisited[nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -258,7 +257,7 @@ public class Main {
                 int nny = m - 1;
                 pos = 1;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -267,12 +266,12 @@ public class Main {
                 int nny = 0;
                 pos = 0;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
             } else {
-                if (isValid(nx, ny, pos)){
+                if (isValid(nx, ny, pos, type)){
                     wallsVisited[pos][nx][ny] = true;
                     return new int[]{nx, ny, pos};
                 }
@@ -283,7 +282,7 @@ public class Main {
                 int nny = (m - 1) - ny;
                 pos = 4;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -292,7 +291,7 @@ public class Main {
                 int nny = connected[1] + ((m - 1) - ny);
                 pos = 5;
 
-                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos)) {
+                if(nnx >= 0 && nny >= 0 && nnx < n && nny < n && isValid(nnx, nny, pos, type)) {
                     mapVisited[nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -301,7 +300,7 @@ public class Main {
                 int nny = m - 1;
                 pos = 0;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -310,12 +309,12 @@ public class Main {
                 int nny = 0;
                 pos = 1;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
             } else {
-                if (isValid(nx, ny, pos)){
+                if (isValid(nx, ny, pos, type)){
                     wallsVisited[pos][nx][ny] = true;
                     return new int[]{nx, ny, pos};
                 }
@@ -326,7 +325,7 @@ public class Main {
                 int nny = (m - 1) - ny;
                 pos = 3;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -335,7 +334,7 @@ public class Main {
                 int nny = ny;
                 pos = 2;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -344,7 +343,7 @@ public class Main {
                 int nny = nx;
                 pos = 1;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
@@ -353,18 +352,18 @@ public class Main {
                 int nny = (m - 1) - nx;
                 pos = 0;
 
-                if(isValid(nnx, nny, pos)) {
+                if(isValid(nnx, nny, pos, type)) {
                     wallsVisited[pos][nnx][nny] = true;
                     return new int[]{nnx, nny, pos};
                 }
             } else {
-                if (isValid(nx, ny, pos)){
+                if (isValid(nx, ny, pos, type)){
                     wallsVisited[pos][nx][ny] = true;
                     return new int[]{nx, ny, pos};
                 }
             }
         } else if(pos == 5) { //바닥
-            if(nx >= 0 && ny >= 0 && nx < n && ny < n && isValid(nx, ny, pos)) {
+            if(nx >= 0 && ny >= 0 && nx < n && ny < n && isValid(nx, ny, pos, type)) {
                 mapVisited[nx][ny] = true;
                 return new int[]{nx, ny, 5};
             }
