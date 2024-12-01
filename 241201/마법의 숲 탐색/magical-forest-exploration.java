@@ -72,10 +72,10 @@ public class Main {
         map[x + dx[d]][y + dy[d]] = k + 1_000;
 
         //최대한 아래로 이동
-        return move(x, y);
+        return move(x, y, k);
     }
 
-    static int move(int x, int y) {
+    static int move(int x, int y, int k) {
         Queue<int[]> que = new LinkedList<>();
         boolean[][] visited = new boolean[r][c];
         que.offer(new int[]{x, y});
@@ -86,6 +86,7 @@ public class Main {
             int[] poll = que.poll();
             int currX = poll[0];
             int currY = poll[1];
+
             maxC = Math.max(maxC, currX);
             for(int i=0; i<4; i++) {
                 int nx = currX + dx[i];
@@ -95,7 +96,7 @@ public class Main {
                     continue;
                 }
 
-                if(map[currX][currY] == map[nx][ny] || (map[currX][currY] + 1000) == map[nx][ny] || map[currX][currY] > 1000) {
+                if(map[currX][currY] == map[nx][ny] || (map[currX][currY] + 1_000) == map[nx][ny] || (map[currX][currY] > 1_000 && map[nx][ny] > 0)) {
                     visited[nx][ny] = true;
                     que.offer(new int[]{nx, ny});
                 }
@@ -107,12 +108,12 @@ public class Main {
     static int[] check(int x, int y, int d) {
         if(d == 2) { //남
             int sx = x + 2 * dx[2];
-            int sy = y + 2 * dy[2];
-            int lx = x + dx[2] + dx[3];
-            int ly = y + dy[2] + dy[3];
-            int rx = x + dx[2] + dy[1];
-            int ry = y + dy[2] + dy[1];
-            if(isValid(sx, sy) && isValid(lx, ly) && isValid(rx, ry)) {
+            int sy = y;
+            int wsx = x + dx[2] + dx[3];
+            int wsy = y + dy[2] + dy[3];
+            int esx = x + dx[2] + dx[1];
+            int esy = y + dy[2] + dy[1];
+            if(isValid(sx, sy) && isValid(wsx, wsy) && isValid(esx, esy)) {
                 return new int[]{x + dx[2], y + dy[2]};   
             }
         } else if(d == 3) { //서
