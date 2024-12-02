@@ -18,12 +18,14 @@ public class Main {
         int revenue;
         int dest;
         int cost;
+        int time;
         
-        Product(int id, int revenue, int dest, int cost) {
+        Product(int id, int revenue, int dest, int cost, int time) {
             this.id = id;
             this.revenue = revenue;
             this.dest = dest;
             this.cost = cost;
+            this.time = time;
         }
 
         @Override
@@ -43,14 +45,14 @@ public class Main {
     static List<List<City>> cityList = new ArrayList<>();
     static PriorityQueue<Product> productQueue = new PriorityQueue<>();
     static int[] distance;
-    static boolean[] deleted = new boolean[30_001]; 
+    static int[] deleted = new int[30_001]; 
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
         int q = Integer.parseInt(br.readLine());
-        while(q-- > 0) {
+        for(int time=0; time<q; time++) {
             st = new StringTokenizer(br.readLine());
             int query = Integer.parseInt(st.nextToken());
             
@@ -80,17 +82,17 @@ public class Main {
                 int id = Integer.parseInt(st.nextToken());
                 int revenue = Integer.parseInt(st.nextToken());
                 int dest = Integer.parseInt(st.nextToken());
-                productQueue.offer(new Product(id, revenue, dest, distance[dest]));
+                productQueue.offer(new Product(id, revenue, dest, distance[dest], time));
 
             } else if (query == 300) {
                 int id = Integer.parseInt(st.nextToken());
-                deleted[id] = true;
+                deleted[id] = time;
 
             } else if (query == 400) {
                 if(!productQueue.isEmpty()) {
                     Product bestProduct = productQueue.peek();
                 
-                    while (deleted[bestProduct.id]) {
+                    while (deleted[bestProduct.id] > bestProduct.time) {
                         productQueue.poll();
                         if(!productQueue.isEmpty()) {
                             bestProduct = productQueue.peek();
