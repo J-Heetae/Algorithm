@@ -57,8 +57,8 @@ public class Main {
 
         //순회하면서 최대 위치와 각도 찾기
         for(int d=2; d<=6; d+=2) {
-            for(int i=1; i<=3; i++) {
-                for(int j=1; j<=3; j++) {
+            for(int j=1; j<=3; j++) {
+                for(int i=1; i<=3; i++) {
                     int[][] rotatedMap = rotate(i, j, d);
                     FindResult findResult = find(rotatedMap);
                     if(findResult.count > maxCount) {
