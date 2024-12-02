@@ -29,8 +29,9 @@ public class Main {
             next[i] = sc.nextInt();
         }
 
-        int answer = 0;
+        int answer;
         while(k-- > 0) {
+            answer = 0;
             SpinResult maxResult = new SpinResult(0, null);
             maxCount = 0;
             
@@ -67,8 +68,8 @@ public class Main {
                 maxCount = 0;
                 result = check();                
             }
+            System.out.print(answer + " ");
         }
-        System.out.print(answer);
     }
 
     static void wallToAfter(int[][] after) {
