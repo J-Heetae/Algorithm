@@ -112,7 +112,9 @@ public class Main {
                     Map<String, Integer> customerMap = customers.get(x);
 
                     if(customerMap == null) {
-                        sushiCount += sushiMap.size();
+                        for(String name : sushiMap.keySet()) {
+                            sushiCount += sushiMap.get(name);
+                        }
                         continue;
                     }
 
@@ -198,8 +200,6 @@ public class Main {
                     customerMap.remove(name);
                 }
             }
-
-
             // System.out.println("현재 시간 = " + t);
             // System.out.println("스시들");
             // for(int x : sushis.keySet()) {
