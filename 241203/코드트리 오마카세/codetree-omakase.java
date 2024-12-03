@@ -49,122 +49,14 @@ public class Main {
                 Map<String, Integer> curr = customers.get(x);
                 curr.put(name, curr.getOrDefault(name, 0) + n);
                 
-            } else {
-                int customerCount = 0;
-                int sushiCount = 0;
-
-                Set<Integer> sushiSet = new HashSet<>();
-
-                for(int x : customers.keySet()) {
-                    Map<String, Integer> customerMap = customers.get(x);
-
-                    x = (L + x - (t % L)) % L;
-
-                    Map<String, Integer> sushiMap = sushis.get(x);
-
-                    if(sushiMap == null) {
-                        customerCount += customerMap.size();
-                        continue;
-                    }
-
-                    sushiSet.add(x);
-
-                    List<String> removeSushi = new ArrayList<>();
-                    List<String> removeCustomer = new ArrayList<>();
-
-                    for(String name : customerMap.keySet()) {
-                        int need = customerMap.get(name);
-                        if(!sushiMap.containsKey(name)) {
-                            continue;
-                        }
-                        int made = sushiMap.get(name);
-                        int total = need - made;
-                        
-                        if(total == 0) {
-                            removeSushi.add(name);
-                            removeCustomer.add(name);
-                        } else if (total < 0) {
-                            removeCustomer.add(name);
-                            sushiMap.put(name, (-1 * total));
-                        } else {
-                            removeSushi.add(name);
-                            customerMap.put(name, total);
-                        }
-                    }
-
-                    for(String name : removeSushi) {
-                        sushiMap.remove(name);
-                    }
-
-                    for(String name : removeCustomer) {
-                        customerMap.remove(name);
-                    }
-
-                    customerCount += customerMap.size();
-                    sushiCount += sushiMap.size();
-                }
-
-                for(int x : sushis.keySet()) {
-                    if(sushiSet.contains(x)) {
-                        continue;
-                    }
-
-                    Map<String, Integer> sushiMap = sushis.get(x);
-                    x = (x + t) % L ;
-                    Map<String, Integer> customerMap = customers.get(x);
-
-                    if(customerMap == null) {
-                        for(String name : sushiMap.keySet()) {
-                            sushiCount += sushiMap.get(name);
-                        }
-                        continue;
-                    }
-
-                    List<String> removeSushi = new ArrayList<>();
-                    List<String> removeCustomer = new ArrayList<>();
-
-                    for(String name : sushiMap.keySet()) {
-                        if(!customerMap.containsKey(name)) {
-                            continue;
-                        }
-                        int need = customerMap.get(name);
-                        int made = sushiMap.get(name);
-                        int total = need - made;
-                        
-                        if(total == 0) {
-                            removeSushi.add(name);
-                            removeCustomer.add(name);
-                        } else if (total < 0) {
-                            removeCustomer.add(name);
-                            sushiMap.put(name, -total);
-                        } else {
-                            removeSushi.add(name);
-                            customerMap.put(name, total);
-                        }
-                    }
-
-                    for(String name : removeSushi) {
-                        // System.out.println("스시 다 먹어서 사라짐 " + name);
-                        sushiMap.remove(name);
-                    }
-
-                    for(String name : removeCustomer) {
-                        // System.out.println("손님 다 먹고 떠남 " + name);
-                        customerMap.remove(name);
-                    }
-
-                    customerCount += customerMap.size();
-                    sushiCount += sushiMap.size();
-                }
-                System.out.println(customerCount + " " + sushiCount);
             }
 
             int range = ((t - beforeTime) >= (L - 1))? L - 1 : t - beforeTime;
             for(int x : customers.keySet()) {
                 Map<String, Integer> customerMap = customers.get(x);
 
-                for(int i=0; i<=range; i++) {
-                    x = (L  + ((L + x - (t % L)) % L) - i) % L;
+                for(int i=0; i<range; i++) {
+                    x = ((L + x - (t % L)) % L + i) % L;
 
                     Map<String, Integer> sushiMap = sushis.get(x);
 
@@ -206,6 +98,25 @@ public class Main {
             }
 
             beforeTime = t;
+
+            if(order == 300) {
+                int customerCount = 0;
+                int sushiCount = 0;
+
+                for(int x : customers.keySet()) {
+                    Map<String, Integer> customerMap = customers.get(x);
+                    customerCount += customerMap.size();
+                    continue;
+                }
+
+                for(int x : sushis.keySet()) {
+                    Map<String, Integer> sushiMap = sushis.get(x);
+                    for(String name : sushiMap.keySet()) {
+                        sushiCount += sushiMap.get(name);
+                    }
+                }
+                System.out.println(customerCount + " " + sushiCount);
+            }
 
             // System.out.println("현재 시간 = " + t);
             // System.out.println("스시들");
