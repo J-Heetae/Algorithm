@@ -16,6 +16,8 @@ public class Main {
 
         sushis = new HashMap<>();
         customers = new HashMap<>();
+        
+        int beforeTime = 0;
 
         while(Q-- > 0) {
             st = new StringTokenizer(br.readLine());
@@ -157,54 +159,59 @@ public class Main {
                 System.out.println(customerCount + " " + sushiCount);
             }
 
+            int range = ((t - beforeTime) >= (L - 1))? L - 1 : t - beforeTime;
             for(int x : customers.keySet()) {
                 Map<String, Integer> customerMap = customers.get(x);
-                // System.out.println("손님 x = " + x);
-                x = (L + x - (t % L)) % L;
-                // System.out.println("스시 x = " + x);
 
-                Map<String, Integer> sushiMap = sushis.get(x);
+                for(int i=0; i<=range; i++) {
+                    x = (L  + ((L + x - (t % L)) % L) - i) % L;
 
-                if(sushiMap == null) {
-                    continue;
-                }
+                    Map<String, Integer> sushiMap = sushis.get(x);
 
-                List<String> removeSushi = new ArrayList<>();
-                List<String> removeCustomer = new ArrayList<>();
-
-                for(String name : customerMap.keySet()) {
-                    int need = customerMap.get(name);
-                    if(!sushiMap.containsKey(name)) {
+                    if(sushiMap == null) {
                         continue;
                     }
-                    int made = sushiMap.get(name);
-                    int total = need - made;
-                    
-                    if(total == 0) {
-                        removeSushi.add(name);
-                        removeCustomer.add(name);
-                    } else if (total < 0) {
-                        removeCustomer.add(name);
-                        sushiMap.put(name, (-1 * total));
-                    } else {
-                        removeSushi.add(name);
-                        customerMap.put(name, total);
+
+                    List<String> removeSushi = new ArrayList<>();
+                    List<String> removeCustomer = new ArrayList<>();
+
+                    for(String name : customerMap.keySet()) {
+                        int need = customerMap.get(name);
+                        if(!sushiMap.containsKey(name)) {
+                            continue;
+                        }
+                        int made = sushiMap.get(name);
+                        int total = need - made;
+                        
+                        if(total == 0) {
+                            removeSushi.add(name);
+                            removeCustomer.add(name);
+                        } else if (total < 0) {
+                            removeCustomer.add(name);
+                            sushiMap.put(name, (-1 * total));
+                        } else {
+                            removeSushi.add(name);
+                            customerMap.put(name, total);
+                        }
+                    }
+
+                    for(String name : removeSushi) {
+                        sushiMap.remove(name);
+                    }
+
+                    for(String name : removeCustomer) {
+                        customerMap.remove(name);
                     }
                 }
-
-                for(String name : removeSushi) {
-                    sushiMap.remove(name);
-                }
-
-                for(String name : removeCustomer) {
-                    customerMap.remove(name);
-                }
             }
+
+            beforeTime = t;
+
             // System.out.println("현재 시간 = " + t);
             // System.out.println("스시들");
             // for(int x : sushis.keySet()) {
             //     int currX = (x + (t % L)) % L;
-            //     System.out.print("원래 x = " + x + ", 현재는 = " + currX );
+            //     System.out.print("원래 x = " + x + ", 현재는 = " + currX + " > ");
             //     for(String name : sushis.get(x).keySet()) {
             //         System.out.print(name + " " + sushis.get(x).get(name) + ", ");
             //     }
@@ -217,6 +224,7 @@ public class Main {
             //         System.out.print(name + " " + customers.get(x).get(name) + ", ");
             //     }
             // }
+            // System.out.println();
             // System.out.println("=========================");
         }
     }
