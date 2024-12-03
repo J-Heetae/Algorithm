@@ -31,7 +31,7 @@ public class Main {
             int num = sc.nextInt();
             int x = sc.nextInt();
             int y = sc.nextInt();
-            santas[i] = new Santa(x, y);
+            santas[num] = new Santa(x, y);
             map[x][y] = num;
         }
         
