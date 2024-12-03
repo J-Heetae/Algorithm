@@ -40,14 +40,18 @@ public class Main {
             rudolphMove(turn);
 
             //산타의 움직임
-            if(!santaMove(turn)) {
-                break;
-            }
+            santaMove(turn);
+
+            boolean keep = false;
             for(int i=1; i<=P; i++) {
                 if(!santas[i].fall) {
+                    keep = true;
                     santas[i].score++;
                 }
             }
+            if(!keep) {
+                break;
+            } 
         }
         //정답 출력
         for(int i=1; i<=P; i++) {
@@ -55,16 +59,9 @@ public class Main {
         }
     }
 
-    static boolean santaMove(int turn) {
-        boolean flag = false;
+    static void santaMove(int turn) {
         for(int i=1; i<=P; i++) {
-            if(santas[i].fall) {
-                continue;
-            }
-
-            flag = true;
-
-            if(santas[i].stun == turn || santas[i].stun == (turn - 1)) {
+            if(santas[i].fall || santas[i].stun == turn || santas[i].stun == (turn - 1)) {
                 continue;
             }
 
@@ -96,7 +93,6 @@ public class Main {
                 hit(i, nx, ny, dir, D);
             }
         }
-        return flag;
     }
 
     static void rudolphMove(int turn) {
