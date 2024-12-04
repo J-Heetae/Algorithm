@@ -131,9 +131,6 @@ public class Main {
         if(range == 0) {
             return;
         }
-        
-        Collections.sort(sushiXList);
-        Collections.sort(customerXList);
 
         ArrayList<Integer> removeSushiX = new ArrayList<>();
         ArrayList<Integer> removeCusX = new ArrayList<>();
@@ -148,19 +145,15 @@ public class Main {
             
             for(int customerX : customerXList) {
                 if(toX > fromX) {
-                    if(customerX < fromX) {
+                    if(customerX < fromX || customerX > toX) {
                         continue;
-                    } else if(customerX > toX) {
-                        break;
                     }
                 } else if (fromX > toX) {
                     if(toX < customerX && customerX < fromX) {
                         continue;
                     }
                 } else {
-                    if(customerX > toX) {
-                        break;
-                    } else if (customerX != fromX) {
+                    if(customerX > toX || customerX != fromX) {
                         continue;
                     }
                 }
