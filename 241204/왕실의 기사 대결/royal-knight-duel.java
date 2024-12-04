@@ -131,35 +131,13 @@ public class Main {
         Queue<int[]> q = new LinkedList<>();
         boolean[][] visited = new boolean[N][N];
 
-        if(dir == 0) {
-            for(int j=p.sy; j<=p.ey; j++) {
-                q.offer(new int[]{p.sx, j});
-                visited[p.sx][j] = true;
-            }
-        } else if (dir == 1) {
-            for(int i=p.sx; i<=p.ex; i++) {
-                q.offer(new int[]{i, p.ey});
-                visited[i][p.ey] = true;
-            }
-        } else if (dir == 2) {
-            for(int j=p.sy; j<=p.ey; j++) {
-                q.offer(new int[]{p.ex, j});
-                visited[p.ex][j] = true;
-            }
-        } else if (dir == 3) {
-            for(int i=p.sx; i<=p.ex; i++) {
-                q.offer(new int[]{i, p.sy});
-                visited[i][p.sy] = true;
-            }
-        }
+        q.offer(new int[]{p.sx, p.sy, p.num});
+        visited[p.sx][p.sy] = true;
 
         while(!q.isEmpty()) {
             int[] poll = q.poll();
 
             for(int i=0; i<4; i++) {
-                if(i == (dir + 2) % 4) {
-                    continue;
-                }
                 int nx = poll[0] + DX[i];
                 int ny = poll[1] + DY[i];
                 
@@ -170,9 +148,11 @@ public class Main {
                     continue;
                 }
                 if(!visited[nx][ny] && p_map[nx][ny] > 0) {
-                    visited[nx][ny] = true;
-                    effected.add(p_map[nx][ny]);
-                    q.offer(new int[]{nx, ny});
+                    if(p_map[nx][ny] == poll[2] || i == dir) {
+                        visited[nx][ny] = true;
+                        effected.add(p_map[nx][ny]);
+                        q.offer(new int[]{nx, ny, p_map[nx][ny]});
+                    }
                 }
             }
         }
