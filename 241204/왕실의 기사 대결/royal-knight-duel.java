@@ -47,7 +47,7 @@ public class Main {
         }
 
         p_map = new int[N][N];
-        players = new Player[N + 1];
+        players = new Player[L + 1];
         for(int i=1; i<=L; i++) {
             int r = sc.nextInt() - 1;
             int c = sc.nextInt() - 1;
