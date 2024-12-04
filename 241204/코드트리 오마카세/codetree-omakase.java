@@ -13,6 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException{
         BufferedReader br = new BufferedReader(new InputStreamReader((System.in)));
+        StringBuilder sb = new StringBuilder();
         StringTokenizer st;
 
         st = new StringTokenizer(br.readLine());
@@ -63,10 +64,11 @@ public class Main {
                     }
                 }
 
-                System.out.println(customerCount + " " + sushiCount);
+                sb.append(customerCount).append(" ").append(sushiCount).append("\n");
             }
             timeBefore = time;
         }
+        System.out.print(sb);
     }
 
     static void putSushi(int x, String name) {
