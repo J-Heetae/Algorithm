@@ -67,22 +67,25 @@ public class Main {
                 nodes[c1].parent = parent2;
                 nodes[c2].parent = parent1;
                 
-                for(int i=nodes[parent1].childs.size() - 1; i>=0; i--) {
-                    if(nodes[parent1].childs.get(i) == c1) {
-                        nodes[parent1].childs.remove(i);
-                        break;
+                if(parent1 != 0) {
+                    for(int i=nodes[parent1].childs.size() - 1; i>=0; i--) {
+                        if(nodes[parent1].childs.get(i) == c1) {
+                            nodes[parent1].childs.remove(i);
+                            break;
+                        }
                     }
+                    nodes[parent1].childs.add(c2);
                 }
 
-                for(int i=nodes[parent2].childs.size() - 1; i>=0; i--) {
-                    if(nodes[parent2].childs.get(i) == c2) {
-                        nodes[parent2].childs.remove(i);
-                        break;
+                if(parent2 != 0) {
+                    for(int i=nodes[parent2].childs.size() - 1; i>=0; i--) {
+                        if(nodes[parent2].childs.get(i) == c2) {
+                            nodes[parent2].childs.remove(i);
+                            break;
+                        }
                     }
+                    nodes[parent2].childs.add(c1);
                 }
-
-                nodes[parent1].childs.add(c2);
-                nodes[parent2].childs.add(c1);
             }
 
             if(order == 500) {
