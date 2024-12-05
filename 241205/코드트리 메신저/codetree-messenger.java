@@ -114,8 +114,8 @@ public class Main {
         
         int depth = 1;
         while(parent != 0) {
-            rooms[parent].count += mul * (start.pass[depth]);
             for(int i=depth; i<=20; i++) {
+                rooms[parent].count += mul * (start.pass[i]);
                 rooms[parent].pass[i - depth] += mul * (start.pass[i]);
             }
             depth++;
