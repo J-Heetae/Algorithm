@@ -83,6 +83,11 @@ public class Main {
     static void changePower(int c, int power) {
         int[] powerArr = {rooms[c].power, power};
         int[] calArr = {-1, 1};
+        rooms[c].power = power;
+
+        if(rooms[c].block) {
+            return;
+        }
 
         for(int i=0; i<2; i++) {
             rooms[c].pass[powerArr[i]] += calArr[i];
