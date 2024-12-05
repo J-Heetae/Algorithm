@@ -42,6 +42,7 @@ public class Main {
             if(order == 300) {
                 int c = sc.nextInt();
                 int power = sc.nextInt();
+                power = (power > 20) ? 20 : power;
                 changePower(c, power);
             }
 
@@ -85,51 +86,47 @@ public class Main {
         int[] calArr = {-1, 1};
         rooms[c].power = power;
 
-        if(rooms[c].block) {
-            return;
-        }
-
         for(int i=0; i<2; i++) {
             rooms[c].pass[powerArr[i]] += calArr[i];
 
-            int parent = rooms[c].parent;
-            for(int j=powerArr[i]-1; j>=0; j--) {
-                if(parent == 0) {
-                    break;
+            if(!rooms[c].block) {
+                int parent = rooms[c].parent;
+                for(int j=powerArr[i]-1; j>=0; j--) {
+                    if(parent == 0) {
+                        break;
+                    }
+                    Room curr = rooms[parent];
+                    curr.count += calArr[i];
+                    if(j > 0) {
+                        curr.pass[j] += calArr[i];
+                    }
+                    if(curr.block) {
+                        break;
+                    }
+                    parent = curr.parent;
                 }
-                Room curr = rooms[parent];
-                curr.count += calArr[i];
-                if(j > 0) {
-                    curr.pass[j] += calArr[i];
-                }
-                if(curr.block) {
-                    break;
-                }
-                parent = curr.parent;
             }
         }
     }
 
     static void changeBlock(int c) {
-        boolean toggle = (rooms[c].block) ? false : true;
-        int mul = (rooms[c].block) ? 1 : -1;
-
         Room start = rooms[c];
+
+        int mul = (rooms[c].block) ? 1 : -1;
         int parent = start.parent;
-        
         int depth = 1;
         while(parent != 0) {
             for(int i=depth; i<=20; i++) {
                 rooms[parent].count += mul * (start.pass[i]);
                 rooms[parent].pass[i - depth] += mul * (start.pass[i]);
             }
-            depth++;
             if(rooms[parent].block) {
                 break;
             }
+            depth++;
             parent = rooms[parent].parent;
         }
-        start.block = toggle;
+        start.block = (start.block) ? false : true;
     }
 
     static void init(Scanner sc) {
