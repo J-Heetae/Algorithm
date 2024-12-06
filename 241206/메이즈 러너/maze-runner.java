@@ -47,6 +47,9 @@ public class Main {
             // System.out.println(K);
             move();
             findSquare();
+            if(escape_count == M) {
+                break;
+            }
             rotate();
         }
         System.out.println(total_move);
