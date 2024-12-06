@@ -50,7 +50,6 @@ public class Main {
     }
 
     static int N, t;
-    // static PriorityQueue<Integer> judger_que = new PriorityQueue<>();
     
     static HashSet<String> url_set = new HashSet<>();
     static PriorityQueue<Task> waiting_que = new PriorityQueue<>();
@@ -64,9 +63,6 @@ public class Main {
     static void init() {
         t = 1;
         judging_arr = new Judging[N + 1];
-        // for(int i=1; i<=N; i++) {
-        //     judger_que.offer(i);
-        // }
     }
 
     static void taskIn(int p, String url) {
@@ -100,15 +96,8 @@ public class Main {
                     return;
                 }
             }
-
-            // if(!judger_que.isEmpty()) { //채점 가능한 채점기 있음
-            //     url_set.remove(poll.url);
-
-            //     int judger_num = judger_que.poll();
-            //     judging_domain_map.put(poll.domain, new ArrayList<>());
-            //     judging_arr[judger_num] = new Judging(t, poll.domain);
-            //     return;
-            // }
+            waiting_que.offer(poll);
+            return;
         }
     }
 
@@ -116,20 +105,18 @@ public class Main {
         if(judging_arr[judge_num] != null) { //진행하던 채점이 있다면
             Judging finish = judging_arr[judge_num];
             judging_arr[judge_num] = null;
-
-            //현재 task의 도메인과 같아서 기다리고 있던 도메인들 다시 대기
-            for(Task task : judging_domain_map.get(finish.domain)) {
-                waiting_que.offer(task);
-            }
-            judging_domain_map.remove(finish.domain);
             
             //해당 도메인의 채점을 언제 다시 할 수 있는지
             int gap = t - finish.start_time;
             int limit_time = finish.start_time + (3 * gap);
             history_map.put(finish.domain, limit_time);
 
-            //채점기 다시 대기
-            // judger_que.offer(judge_num);
+            //현재 task의 도메인과 같아서 기다리고 있던 도메인들
+            //다시 채점할 수 있을때까지 대기
+            for(Task task : judging_domain_map.get(finish.domain)) {
+                sub_waiting_que.offer(new WaitingTask(limit_time, task));
+            }
+            judging_domain_map.remove(finish.domain);
         }
     }
 
@@ -146,13 +133,6 @@ public class Main {
                 int p = 1;
                 String url = sc.next();
                 taskIn(p, url);
-
-                // int sub = 0;
-                // for(String domain : judging_domain_map.keySet()) {
-                //     // count += judging_domain_map.get(domain).size();
-                //     sub += judging_domain_map.get(domain).size();
-                // }
-                // System.out.println("t = " + t + ", query =  " + query + ", waiting_que = " + waiting_que.size() + ", sub_waiting_que = " + sub_waiting_que.size() + ", judging_domain_map = " + sub);
                 continue;
             }
 
@@ -176,24 +156,15 @@ public class Main {
                 judgeFinish(judger_num);
             }
 
-            int sub = 0;
-            for(String domain : judging_domain_map.keySet()) {
-                // count += judging_domain_map.get(domain).size();
-                sub += judging_domain_map.get(domain).size();
-            }
-
             if(query == 500) {
                 int count = 0;
                 count += waiting_que.size();
                 count += sub_waiting_que.size();
-                // int sub = 0;
                 for(String domain : judging_domain_map.keySet()) {
                     count += judging_domain_map.get(domain).size();
-                    // sub += judging_domain_map.get(domain).size();
                 }
                 System.out.println(count);
             }
-            // System.out.println("t = " + t + ", query =  " + query + ", waiting_que = " + waiting_que.size() + ", sub_waiting_que = " + sub_waiting_que.size() + ", judging_domain_map = " + sub);
         }
     }
 }
