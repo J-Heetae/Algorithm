@@ -56,10 +56,10 @@ public class Main {
     }
 
     static void rotate() {
-        int[][] temp_maze = new int[N][N];
-        for(int i=0; i<N; i++) {
-            for(int j=0; j<N; j++) {
-                temp_maze[i][j] = maze[i][j];
+        int[][] temp_maze = new int[square_size][square_size];
+        for(int i=0; i<square_size; i++) {
+            for(int j=0; j<square_size; j++) {
+                temp_maze[i][j] = maze[i + sx][j + sy];
             }
         }
 
@@ -67,13 +67,13 @@ public class Main {
             for(int y=sy; y<sy+square_size; y++) {
                 int ox = x - sx, oy = y - sy;
                 int rx = oy, ry = square_size - ox - 1;
-                temp_maze[sx + rx][sy + ry] = maze[x][y];
+                temp_maze[rx][ry] = maze[x][y];
             }
         }
         
         for(int x=sx; x<sx+square_size; x++) {
             for(int y=sy; y<sy+square_size; y++) {
-                maze[x][y] = temp_maze[x][y];
+                maze[x][y] = temp_maze[x- sx][y - sy];
                 if (maze[x][y] > 0) {
                     maze[x][y]--;
                 }
