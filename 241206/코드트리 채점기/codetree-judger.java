@@ -50,7 +50,7 @@ public class Main {
     }
 
     static int N, t;
-    static PriorityQueue<Integer> judger_que = new PriorityQueue<>();
+    // static PriorityQueue<Integer> judger_que = new PriorityQueue<>();
     
     static HashSet<String> url_set = new HashSet<>();
     static PriorityQueue<Task> waiting_que = new PriorityQueue<>();
@@ -64,9 +64,9 @@ public class Main {
     static void init() {
         t = 1;
         judging_arr = new Judging[N + 1];
-        for(int i=1; i<=N; i++) {
-            judger_que.offer(i);
-        }
+        // for(int i=1; i<=N; i++) {
+        //     judger_que.offer(i);
+        // }
     }
 
     static void taskIn(int p, String url) {
@@ -92,14 +92,23 @@ public class Main {
                 continue;
             }
             //즉시 채점 가능
-            if(!judger_que.isEmpty()) { //채점 가능한 채점기 있음
-                url_set.remove(poll.url);
-
-                int judger_num = judger_que.poll();
-                judging_domain_map.put(poll.domain, new ArrayList<>());
-                judging_arr[judger_num] = new Judging(t, poll.domain);
-                return;
+            for(int i=1; i<=N ;i++) {
+                if(judging_arr[i] == null) {
+                    url_set.remove(poll.url);
+                    judging_domain_map.put(poll.domain, new ArrayList<>());
+                    judging_arr[i] = new Judging(t, poll.domain);
+                    return;
+                }
             }
+
+            // if(!judger_que.isEmpty()) { //채점 가능한 채점기 있음
+            //     url_set.remove(poll.url);
+
+            //     int judger_num = judger_que.poll();
+            //     judging_domain_map.put(poll.domain, new ArrayList<>());
+            //     judging_arr[judger_num] = new Judging(t, poll.domain);
+            //     return;
+            // }
         }
     }
 
@@ -120,7 +129,7 @@ public class Main {
             history_map.put(finish.domain, limit_time);
 
             //채점기 다시 대기
-            judger_que.offer(judge_num);
+            // judger_que.offer(judge_num);
         }
     }
 
