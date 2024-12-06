@@ -43,13 +43,12 @@ public class Main {
         int y = sc.nextInt() - 1;
         exit = new Coor(x, y);
 
-        while(K-- > 0 && escape_count < M) {
-            // System.out.println(K);
+        while(K-- > 0) {
             move();
-            findSquare();
             if(escape_count == M) {
                 break;
             }
+            findSquare();
             rotate();
         }
         System.out.println(total_move);
@@ -80,16 +79,6 @@ public class Main {
                 }
             }
         }
-        // System.out.println("===========");
-        // System.out.println(sx + " " + sy + " " + square_size);
-        // System.out.println("===========");
-        // for(int i=0; i<N ;i++) {
-        //     for(int j=0; j<N; j++) {
-        //         System.out.print(maze[i][j] + " ");
-        //     }
-        //     System.out.println();
-        // }
-        // System.out.println("===========");
 
         //출구 위치 이동
         int origin_exit_x = exit.x;
@@ -113,30 +102,18 @@ public class Main {
     }
 
     static void findSquare() {
-        // System.out.println("findSquare");
         for(int size=2; size<=N; size++) {
             for(int x=0; x<=N-size; x++) {
                 for(int y=0; y<=N-size; y++) {
-                    // System.out.println("---------------");
-                    // System.out.println("현재");
-                    // System.out.println(x + " " + y + " " + size);
-
-                    // System.out.println("출구");
-                    // System.out.println(exit.x + " " + exit.y);
                     //출구 확인
                     if(exit.x < x || exit.x >= x + size || exit.y < y || exit.y >= y + size) {
                         continue;
                     }
-                    // System.out.println("출구 찾았다.");
                     //참가자 확인
                     for(Coor c : p) {
-                        // System.out.println("참가자");
-                        // System.out.println(c.x + " " + c.y);
                         if(c.x < x || c.x >= x + size || c.y < y || c.y >= y + size) {
                             continue;
                         }
-                        // System.out.println("참가자 찾았다.");
-                        // System.out.println("=============================================================");
                         sx = x;
                         sy = y;
                         square_size = size;
@@ -156,20 +133,15 @@ public class Main {
             Coor curr = p[i];
             int origin_distance = getDistance(curr.x, curr.y);
 
-            // System.out.println("현재 참가자 " + curr.x + " " + curr.y + " " + origin_distance);
-
             for(int dir=0; dir<4; dir++) {
                 int nx = curr.x + dx[dir];
                 int ny = curr.y + dy[dir];
-
-                // System.out.println(nx + " " + ny + " " + getDistance(nx, ny));
 
                 if(nx < 0 || ny < 0 || nx >= N || ny >= N ||
                     maze[nx][ny] > 0 ||
                     origin_distance <= getDistance(nx, ny)) {
                     continue;
                 }
-                // System.out.println("여기다");
                 total_move++;
                 if(nx == exit.x && ny == exit.y) { //다음 이동할 곳이 출구
                     escape_count++; 
@@ -181,7 +153,6 @@ public class Main {
                 }
                 break;
             }
-            // System.out.println("이동 끝 " + curr.x + " " + curr.y);
         }
     }
 
