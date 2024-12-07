@@ -42,16 +42,6 @@ public class Main {
             if(survive == 1) {
                 break;
             }
-            // System.out.println("weak = " + weak[0] + " " + weak[1]);
-            // System.out.println("strong = " + strong[0] + " " + strong[1]);
-
-            // for(int k=0; k<N; k++) {
-            //     for(int j=0; j<M; j++) {
-            //         System.out.print(power[k][j] + " ");
-            //     }
-            //     System.out.println();
-            // }
-            // System.out.println("=============");
         }
         int maxPower = Integer.MIN_VALUE;
         for(int i=0; i<N; i++) {
@@ -100,6 +90,10 @@ public class Main {
 
     static void lazerAttack() {
         lazerSuccess = false;
+
+        // if(weak[0] == strong[0] && weak[1] == strong[1]) {
+        //     return;
+        // }
 
         Queue<int[]> q = new LinkedList<>();
         int[][][] before = new int[N][M][3];
@@ -189,8 +183,8 @@ public class Main {
 
     static void pick() {
         pickWeak();
-        pickStrong();
         power[weak[0]][weak[1]] += N + M;
+        pickStrong();
     }
 
     static void pickWeak() {
@@ -242,7 +236,7 @@ public class Main {
 
         for(int i=0; i<N; i++) {
             for(int j=0; j<M; j++) {
-                if(power[i][j] == 0) {
+                if(power[i][j] == 0 || (i == weak[0] && j == weak[1])) {
                     continue;
                 }
 
