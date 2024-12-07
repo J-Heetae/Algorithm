@@ -83,22 +83,14 @@ public class Main {
         lazerSuccess = false;
 
         Queue<int[]> q = new LinkedList<>();
-        int[][][] before = new int[N][M][3];
-        for(int i=0; i<N; i++) {
-            for(int j=0; j<M; j++) {
-                before[i][j][2] = Integer.MAX_VALUE;
-            }
-        }
+        int[][][] before = new int[N][M][2];
+        boolean[][] visited = new boolean[N][M];
         
-        q.offer(new int[]{weak[0], weak[1], 0});
-        before[weak[0]][weak[1]][2] = 0;
+        q.offer(new int[]{weak[0], weak[1]});
+        visited[weak[0]][weak[1]] = true;
         
         while(!q.isEmpty()) {
             int[] poll = q.poll();
-            
-            if(before[poll[0]][poll[1]][2] < poll[2]) {
-                continue;
-            }
 
             if(poll[0] == strong[0] && poll[1] == strong[1]) {
                 lazerSuccess = true;
@@ -112,13 +104,13 @@ public class Main {
                 nx = (nx < 0) ? N - 1 : (nx >= N) ? 0 : nx;
                 ny = (ny < 0) ? M - 1 : (ny >= M) ? 0 : ny;
 
-                if(power[nx][ny] == 0 || before[nx][ny][2] <= poll[2] + 1) {
+                if(power[nx][ny] == 0 || visited[nx][ny]) {
                     continue;
                 }
+                visited[nx][ny] = true;
                 before[nx][ny][0] = poll[0];
                 before[nx][ny][1] = poll[1];
-                before[nx][ny][2] = poll[2] + 1;
-                q.offer(new int[]{nx, ny, before[nx][ny][2]});
+                q.offer(new int[]{nx, ny});
             }
         }
         
