@@ -2,6 +2,9 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
+    
+    final static int FIRST = 0;
+    final static int LAST = 1;
 
     static class Present {
         int num;
@@ -34,20 +37,15 @@ public class Main {
                 m = Integer.parseInt(st.nextToken());
 
                 bArr = new ArrayDeque[n + 1];
-                for(int i=1; i<=n; i++) {
+                for(int i = 1; i <= n; i++) {
                     bArr[i] = new ArrayDeque<>();
                 }
                 
                 pArr = new Present[m + 1];
-                for(int pNum=1; pNum<=m; pNum++) {
+                for(int pNum = 1; pNum <= m; pNum++) {
                     pArr[pNum] = new Present(pNum);
-
                     int bNum = Integer.parseInt(st.nextToken());
-                    if(!bArr[bNum].isEmpty()) {
-                        bArr[bNum].peekLast().back = pNum;
-                        pArr[pNum].front = bArr[bNum].peekLast().num;
-                    }
-                    bArr[bNum].addLast(pArr[pNum]);
+                    customAdd(bArr[bNum], pArr[pNum], LAST);
                 }
             }
 
@@ -86,26 +84,29 @@ public class Main {
         ArrayDeque<Present> belt = bArr[bNum];
         int frontNum = -1;
         int backNum = -1;
+        int beltSize = (belt.isEmpty()) ? 0 : belt.size();
         
         if(!belt.isEmpty()) {
             frontNum = belt.peekFirst().num;
             backNum = belt.peekLast().num;
         }
-        return frontNum + 2 * backNum + 3 * belt.size();
+        return frontNum + (2 * backNum) + (3 * beltSize);
     }
 
     static int getPresentInfo(int pNum) {
         Present curr = pArr[pNum];
-        return curr.front + 2 * curr.back;
+        return curr.front + (2 * curr.back);
     }
 
     static int devide(int a, int b) {
         ArrayDeque<Present> from = bArr[a];
         ArrayDeque<Present> to = bArr[b];
 
-        int n = from.size() / 2;
-        for(int i=0; i<n; i++) {
-            customAddFirst(to, customPollFirst(from));
+        if(from.size() > 1) {
+            int n = (int)Math.floor(from.size() / 2);
+            for(int i = 0; i < n; i++) {
+                customAdd(to, customPoll(from, FIRST), LAST); // 순서 유지
+            }
         }
         return to.size();
     }
@@ -114,39 +115,17 @@ public class Main {
         ArrayDeque<Present> from = bArr[a];
         ArrayDeque<Present> to = bArr[b];
 
-        Present aPresent = customPollFirst(from);
-        Present bPresent = customPollFirst(to);
+        Present aPresent = customPoll(from, FIRST);
+        Present bPresent = customPoll(to, FIRST);
 
         if(aPresent != null) {
-            customAddFirst(to, aPresent);
+            customAdd(to, aPresent, FIRST);
         }
 
         if(bPresent != null) {
-            customAddFirst(from, bPresent);
+            customAdd(from, bPresent, FIRST);
         }
         return to.size();
-    }
-
-    static void customAddFirst(ArrayDeque<Present> dq, Present present) {
-        if(!dq.isEmpty()) {
-            dq.peekFirst().front = present.num;
-            present.back = dq.peekFirst().num;
-        }
-        dq.addFirst(present);
-    }
-
-    static Present customPollFirst(ArrayDeque<Present> dq) {
-        Present present = null;
-        if(!dq.isEmpty()) {
-            present = dq.pollFirst();
-            present.front = -1;
-            present.back = -1;
-
-            if(!dq.isEmpty()) {
-                dq.peekFirst().front = -1;
-            }    
-        }
-        return present;
     }
 
     static int moveAll(int a, int b) {
@@ -154,14 +133,50 @@ public class Main {
         ArrayDeque<Present> to = bArr[b];
 
         while(!from.isEmpty()) {
-            Present poll = from.pollLast();
-            
-            if(!to.isEmpty()) {
-                to.peekFirst().front = poll.num;
-                poll.back = to.peekFirst().num;
-            }
-            to.addFirst(poll);
+            customAdd(to, customPoll(from, FIRST), LAST); // 순서 유지
         }
         return to.size();
+    }
+
+    static void customAdd(ArrayDeque<Present> dq, Present present, int type) {
+        present.front = -1;
+        present.back = -1;
+
+        if(!dq.isEmpty()) {
+            if(type == FIRST) {
+                dq.peekFirst().front = present.num;
+                present.back = dq.peekFirst().num;
+            } else {
+                dq.peekLast().back = present.num;
+                present.front = dq.peekLast().num;
+            }
+        }
+        if(type == FIRST) {
+            dq.addFirst(present);
+        } else {
+            dq.addLast(present);
+        }
+    }
+
+    static Present customPoll(ArrayDeque<Present> dq, int type) {
+        Present present = null;
+        if(!dq.isEmpty()) {
+            if(type == FIRST) {
+                present = dq.pollFirst();
+            } else {
+                present = dq.pollLast();
+            }
+            present.front = -1;
+            present.back = -1;
+
+            if(!dq.isEmpty()) {
+                if(type == FIRST) {
+                    dq.peekFirst().front = -1;
+                } else {
+                    dq.peekLast().back = -1;             
+                }
+            }    
+        }
+        return present;
     }
 }
