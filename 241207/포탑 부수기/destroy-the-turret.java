@@ -58,15 +58,6 @@ public class Main {
         attacked[weak[0]][weak[1]] = true;
         lastAttack[weak[0]][weak[1]] = T;
 
-        //일단 strong은 맞기
-        power[strong[0]][strong[1]] -= power[weak[0]][weak[1]];
-        if(power[strong[0]][strong[1]] < 0) {
-            power[strong[0]][strong[1]] = 0;
-            survive--;
-        } else {
-            attacked[strong[0]][strong[1]] = true;
-        }
-
         //레이저 공격
         lazerAttack();
 
@@ -90,10 +81,6 @@ public class Main {
 
     static void lazerAttack() {
         lazerSuccess = false;
-
-        // if(weak[0] == strong[0] && weak[1] == strong[1]) {
-        //     return;
-        // }
 
         Queue<int[]> q = new LinkedList<>();
         int[][][] before = new int[N][M][3];
@@ -136,12 +123,19 @@ public class Main {
         }
         
         if(lazerSuccess) {
+             power[strong[0]][strong[1]] -= power[weak[0]][weak[1]];
+            if(power[strong[0]][strong[1]] <= 0) {
+                power[strong[0]][strong[1]] = 0;
+                survive--;
+            } else {
+                attacked[strong[0]][strong[1]] = true;
+            }
+
             int x = before[strong[0]][strong[1]][0];
             int y = before[strong[0]][strong[1]][1];
             while(!(x == weak[0] && y == weak[1])) {
-                // System.out.println(x + " " + y);
                 power[x][y] -= power[weak[0]][weak[1]] / 2;
-                if(power[x][y] < 0) {
+                if(power[x][y] <= 0) {
                     power[x][y] = 0;
                     survive--;
                 } else {
@@ -160,6 +154,14 @@ public class Main {
             return;
         }
 
+        power[strong[0]][strong[1]] -= power[weak[0]][weak[1]];
+        if(power[strong[0]][strong[1]] <= 0) {
+            power[strong[0]][strong[1]] = 0;
+            survive--;
+        } else {
+            attacked[strong[0]][strong[1]] = true;
+        }
+
         for(int i=0; i<8; i++) {
             int nx = strong[0] + dx[i];
             int ny = strong[1] + dy[i];
@@ -172,7 +174,7 @@ public class Main {
             }
 
             power[nx][ny] -= power[weak[0]][weak[1]] / 2;
-            if(power[nx][ny] < 0) {
+            if(power[nx][ny] <= 0) {
                 power[nx][ny] = 0;
                 survive--;
             } else {
