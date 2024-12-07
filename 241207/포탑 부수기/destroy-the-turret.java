@@ -91,7 +91,7 @@ public class Main {
         }
         
         q.offer(new int[]{weak[0], weak[1], 0});
-        before[weak[0]][weak[1]][0] = 0;
+        before[weak[0]][weak[1]][2] = 0;
         
         while(!q.isEmpty()) {
             int[] poll = q.poll();
