@@ -184,8 +184,8 @@ public class Main {
 		
 		Queue<int[]> que = new LinkedList<>();
 		que.offer(attacker);
-		path[attacker[0]][attacker[1]][0] = -2;
-		path[attacker[0]][attacker[1]][1] = -2;
+		path[attacker[0]][attacker[1]][0] = attacker[0];
+		path[attacker[0]][attacker[1]][1] = attacker[1];
 		
 		while(!que.isEmpty()) {
 			int[] curr = que.poll();
