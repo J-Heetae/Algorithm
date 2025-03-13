@@ -231,6 +231,7 @@ public class Main {
 				if(map[i][j].power != 0 && map[i][j].repair) {
 					map[i][j].power += 1;
 				}
+                map[i][j].repair = true;
 			}
 		}
 	}
