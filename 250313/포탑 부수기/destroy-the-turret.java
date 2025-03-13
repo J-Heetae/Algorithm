@@ -65,8 +65,8 @@ public class Main {
 		int y = 0;
 		int minPower = Integer.MAX_VALUE;
 		
-		for(int i=0; i<N; i++) {
-			for(int j=0; j<M; j++) {
+		for(int i=N-1; i>=0; i--) {
+			for(int j=M-1; j>=0; j--) {
 				Cannon curr = map[i][j];
 				
 				if(curr.power == 0) { //부서진 포탑 넘어가기
@@ -102,8 +102,8 @@ public class Main {
 		int y = 0;
 		int maxPower = Integer.MIN_VALUE;
 		
-		for(int i=N-1; i>=0; i--) {
-			for(int j=M-1; j>=0; j--) {
+		for(int i=0; i<N; i++) {
+			for(int j=0; j<M; j++) {
 				Cannon curr = map[i][j];
 				
 				if(curr.power == 0) { //부서진 포탑 넘어가기
