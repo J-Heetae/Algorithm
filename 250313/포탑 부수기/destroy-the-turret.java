@@ -9,15 +9,26 @@ public class Main {
 	static int N, M, K, currTurn;
 	static Cannon[][] map;
 	
-	public static class Cannon {
+	public static class Cannon implements Comparable<Cannon>{
+		int x, y;
 		int power;
 		int lastAttack;
 		boolean repair;
 		
-		public Cannon(int power) {
+		public Cannon(int x, int y, int power) {
+			this.x = x;
+			this.y = y;
 			this.power = power;
 			this.lastAttack = 0;
 			this.repair = true;
+		}
+
+		@Override
+		public int compareTo(Cannon o) {
+			if(this.power != o.power) return this.power - o.power;
+			if(this.lastAttack != o.lastAttack) return o.lastAttack - this.lastAttack;
+			if((this.x + this.y) == (o.x + o.y)) return (o.x + o.y) - (this.x + this.y);	
+			return o.y - this.y;
 		}
 	}
 	
@@ -34,15 +45,35 @@ public class Main {
 			read = br.readLine().split(" ");
 			for(int j=0; j<M; j++) {
 				int power = Integer.parseInt(read[j]);
-				map[i][j] = new Cannon(power);
+				map[i][j] = new Cannon(i, j, power);
 			}
 		}
 		
 		while(currTurn < K) {
 			currTurn++;
-			int[] attacker = pickAttacker();
-			int[] defender = pickDefender();
+			
+			ArrayList<Cannon> list = new ArrayList<>();
+			for(int i=0; i<N; i++) {
+				for(int j=0; j<M; j++) {
+					if(map[i][j].power > 0) {
+						list.add(map[i][j]);
+					}
+				}
+			}
+			
+			if(list.size() <= 1) {
+				break;
+			}
+			
+			Collections.sort(list);
+			
+			int[] attacker = new int[] {list.get(0).x, list.get(0).y};
+			int[] defender = new int[] {list.get(list.size() - 1).x, list.get(list.size() - 1).y};
+			
 			map[attacker[0]][attacker[1]].power += N + M;
+			map[attacker[0]][attacker[1]].lastAttack = currTurn;
+			map[attacker[0]][attacker[1]].repair = false;
+			
 			attack(attacker, defender);
 			repairCannon();
 		}
@@ -51,7 +82,7 @@ public class Main {
 	}
 	
 	public static int getMaxPower() {
-		int maxPower = Integer.MIN_VALUE;
+		int maxPower = 0;
 		for(int i=0; i<N; i++) {
 			for(int j=0; j<M; j++) {
 				maxPower = Math.max(maxPower, map[i][j].power);
@@ -59,85 +90,14 @@ public class Main {
 		}
 		return maxPower;
 	}
-	
-	public static int[] pickAttacker() {
-		int x = 0;
-		int y = 0;
-		int minPower = Integer.MAX_VALUE;
-		
-		for(int i=N-1; i>=0; i--) {
-			for(int j=M-1; j>=0; j--) {
-				Cannon curr = map[i][j];
-				
-				if(curr.power == 0) { //부서진 포탑 넘어가기
-					continue;
-				}
-				
-				if(curr.power < minPower) {
-					x = i;
-					y = j;
-					minPower = curr.power;
-					continue;
-				}
-				
-				if(curr.power == minPower) {
-					if(curr.lastAttack > map[x][y].lastAttack) {
-						x = i;
-						y = j;
-						minPower = curr.power;
-						continue;
-					}
-				}
-			}
-		}
-		
-		map[x][y].lastAttack = currTurn;
-		map[x][y].repair = false;
-		
-		return new int[]{x, y};
-	}
-	
-	public static int[] pickDefender() {
-		int x = 0;
-		int y = 0;
-		int maxPower = Integer.MIN_VALUE;
-		
-		for(int i=0; i<N; i++) {
-			for(int j=0; j<M; j++) {
-				Cannon curr = map[i][j];
-				
-				if(curr.power == 0) { //부서진 포탑 넘어가기
-					continue;
-				}
-				
-				if(curr.power > maxPower) {
-					x = i;
-					y = j;
-					maxPower = curr.power;
-					continue;
-				}
-				
-				if(curr.power == maxPower) {
-					if(curr.lastAttack < map[x][y].lastAttack) {
-						x = i;
-						y = j;
-						maxPower = curr.power;
-						continue;
-					}
-				}
-			}
-		}
-		
-		map[x][y].repair = false;
-		
-		return new int[]{x, y};
-	}
-	
+
 	public static void attack(int[] attacker, int[] defender) {
-		int[][][] path = lazer(attacker, defender);
 		int damage = map[attacker[0]][attacker[1]].power;
 		
+		int[][][] path = lazer(attacker, defender);
+		
 		map[defender[0]][defender[1]].power = Math.max(0, map[defender[0]][defender[1]].power - damage);	
+		map[defender[0]][defender[1]].repair = false;
 		
 		if(path != null) {
 			int x = path[defender[0]][defender[1]][0];
@@ -158,11 +118,8 @@ public class Main {
 
 		//포탄 공격
 		for(int i=0; i<8; i++) {
-			int nx = defender[0] + DX[i];
-			int ny = defender[1] + DY[i];
-			
-			nx = fixCoor(nx, N);
-			ny = fixCoor(ny, M);
+			int nx = (defender[0] + DX[i] + N) % N;
+			int ny = (defender[1] + DY[i] + M) % M;
 			
 			if(nx == attacker[0] && ny == attacker[1]) { //공격자인 경우 넘어가기
 				continue;
@@ -196,17 +153,14 @@ public class Main {
 			}
 			
 			for(int i=0; i<8; i+=2) {
-				int nx = curr[0] + DX[i];
-				int ny = curr[1] + DY[i];
+				int nx = (curr[0] + DX[i] + N) % N;
+				int ny = (curr[1] + DY[i] + M) % M;
 				
-				nx = fixCoor(nx, N);
-				ny = fixCoor(ny, M);
-				
-				if(path[nx][ny][0] != -1) { //최단 경로가 아닌 경우 넘어가기
+				if(map[nx][ny].power == 0) { //부서진 포탑 넘어가기
 					continue;
 				}
 				
-				if(map[nx][ny].power == 0) { //부서진 포탑 넘어가기
+				if(path[nx][ny][0] != -1) { //최단 경로가 아닌 경우 넘어가기
 					continue;
 				}
 				
@@ -228,24 +182,16 @@ public class Main {
 	public static void repairCannon() {
 		for(int i=0; i<N; i++) {
 			for(int j=0; j<M; j++) {
-				if(map[i][j].power != 0 && map[i][j].repair) {
-					map[i][j].power += 1;
+				if(map[i][j].power == 0) {
+					continue;
 				}
-                map[i][j].repair = true;
+				
+				if(map[i][j].repair) {
+					map[i][j].power += 1;
+				} else {
+					map[i][j].repair = true;
+				}
 			}
 		}
 	}
-	
-	public static int fixCoor(int coor, int max) {
-		if(coor < 0) {
-			return max - 1;
-		}
-		
-		if(coor == max) {
-			return 0;
-		}
-		
-		return coor;
-	}
-	
 }
