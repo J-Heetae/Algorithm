@@ -42,6 +42,7 @@ public class Main {
 			currTurn++;
 			int[] attacker = pickAttacker();
 			int[] defender = pickDefender();
+			map[attacker[0]][attacker[1]].power += N + M;
 			attack(attacker, defender);
 			repairCannon();
 		}
@@ -90,7 +91,6 @@ public class Main {
 			}
 		}
 		
-		map[x][y].power += N + M;
 		map[x][y].lastAttack = currTurn;
 		map[x][y].repair = false;
 		
