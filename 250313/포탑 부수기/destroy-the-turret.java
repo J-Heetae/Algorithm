@@ -27,7 +27,7 @@ public class Main {
 		public int compareTo(Cannon o) {
 			if(this.power != o.power) return this.power - o.power;
 			if(this.lastAttack != o.lastAttack) return o.lastAttack - this.lastAttack;
-			if((this.x + this.y) == (o.x + o.y)) return (o.x + o.y) - (this.x + this.y);	
+			if((this.x + this.y) != (o.x + o.y)) return (o.x + o.y) - (this.x + this.y);	
 			return o.y - this.y;
 		}
 	}
