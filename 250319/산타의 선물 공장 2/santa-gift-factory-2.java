@@ -142,6 +142,10 @@ public class Main {
 	}
 	
 	static void addFirst(int boxNum, int beltNum) {
+		if(boxNum == 0 || beltNum == 0) {
+			return;
+		}
+		
 		Deque<Integer> belt = belts[beltNum];
 		int prefirstBoxNum = -1;
 		
@@ -156,6 +160,10 @@ public class Main {
 	}
 	
 	static void addLast(int boxNum, int beltNum) {
+		if(boxNum == 0 || beltNum == 0) {
+			return;
+		}
+		
 		Deque<Integer> belt = belts[beltNum];
 		int preLastBoxNum = -1;
 		
@@ -169,7 +177,7 @@ public class Main {
 		boxes[boxNum].back = -1;
 	}
 	
-	static int pollFirst(int beltNum) {
+	static int pollFirst(int beltNum) {		
 		Deque<Integer> belt = belts[beltNum];
 		int pollBoxNum = 0;
 		
