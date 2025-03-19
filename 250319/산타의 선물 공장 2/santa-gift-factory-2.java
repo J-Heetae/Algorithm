@@ -59,7 +59,7 @@ public class Main {
 			if(order == 400) {
 				int from = stoi(st.nextToken());
 				int to = stoi(st.nextToken());
-				result = devideBoxes(from, to);
+				result = dividBoxes(from, to);
 			}
 			
 			if(order == 500) {
@@ -117,7 +117,7 @@ public class Main {
 		return belts[to].size();
 	}
 	
-	static int devideBoxes(int from, int to) {
+	static int dividBoxes(int from, int to) {
 		int boxCount = belts[from].size();
 		if(boxCount > 1) {
 			int move = boxCount / 2;
