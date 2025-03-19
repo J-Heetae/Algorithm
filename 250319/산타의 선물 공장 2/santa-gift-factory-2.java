@@ -120,7 +120,7 @@ public class Main {
 	static int devideBoxes(int from, int to) {
 		int boxCount = belts[from].size();
 		if(boxCount > 1) {
-			int move = (int) Math.floor(boxCount / 2);
+			int move = boxCount / 2;
 			for(int i=0; i<move; i++) {
 				addFirst(pollFirst(from), to);
 			}
