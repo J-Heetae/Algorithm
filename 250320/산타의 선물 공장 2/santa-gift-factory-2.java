@@ -1,221 +1,205 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
 	
-	static class Box {
-		int num, front, back;
-		
-		public Box(int num) {
-			this.num = num;
-			this.front = -1;
-			this.back = -1;
-		}
-	}
+	static Scanner sc = new Scanner(System.in);
 	
-	static Deque<Integer>[] belts;
-	static Box[] boxes;
+	static final int MAX_N = 100_000;
+	static final int MAX_M = 100_000;
 	
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
-		StringTokenizer st;
-		
-		st = new StringTokenizer(br.readLine());
-		int orderCount = stoi(st.nextToken());
-		
-		for(int i=0; i<orderCount; i++) {
-			st = new StringTokenizer(br.readLine());
-			int order = stoi(st.nextToken());
-			int result = 0;
-			
-			if(order == 100) {
-				int beltSize = stoi(st.nextToken());
-				int boxSize = stoi(st.nextToken());
-				int[] beltNums = new int[boxSize];
-				for(int j=0; j<boxSize; j++) {
-					beltNums[j] = stoi(st.nextToken());
-				}
-				init(beltSize, boxSize, beltNums);
-				continue;
-			}
-			
-			if(order == 200) {
-				int from = stoi(st.nextToken());
-				int to = stoi(st.nextToken());
-				result = moveAllBoxes(from, to);
-			}
-			
-			if(order == 300) {
-				int from = stoi(st.nextToken());
-				int to = stoi(st.nextToken());
-				result = switchFirstBoxes(from, to);
-			}
-			
-			if(order == 400) {
-				int from = stoi(st.nextToken());
-				int to = stoi(st.nextToken());
-				result = dividBoxes(from, to);
-			}
-			
-			if(order == 500) {
-				int boxNum = stoi(st.nextToken());
-				result = getBoxInfo(boxNum);
-			}
-			
-			if(order == 600) {
-				int beltNum = stoi(st.nextToken());
-				result = getBeltInfo(beltNum);
-			}
-			
-			sb.append(result).append("\n");
-		}
-		System.out.println(sb);
-	}
+	static int[] prev = new int[MAX_M + 1];
+	static int[] next = new int[MAX_M + 1];
 	
-	static void init(int beltSize, int boxSize, int[] beltNums) {
-		belts = new Deque[beltSize + 1];
-		boxes = new Box[boxSize + 1];
-		
-		for(int i=1; i<=beltSize; i++) {
-			belts[i] = new ArrayDeque<>();
-		}
-		
-		for(int i=1; i<=boxSize; i++) {
-			boxes[i] = new Box(i);
-		}
-		
-		for(int i=1; i<=beltNums.length; i++) {
-			addLast(i, beltNums[i-1]);
-		}
-	}
+	static int[] boxCount = new int[MAX_N + 1];
+	static int[] head = new int[MAX_N + 1];
+	static int[] tail = new int[MAX_N + 1];
 	
-	static int moveAllBoxes(int from, int to) {
-		int size = belts[from].size();
-		for(int i=0; i<size; i++) {
-			addFirst(pollLast(from), to);
-		}
-		return belts[to].size();
-	}
 	
-	static int switchFirstBoxes(int from, int to) {
-		int fromFirst = pollFirst(from);
-		int toFirst = pollFirst(to);
-		
-		if(fromFirst != 0) {
-			addFirst(fromFirst, to);
-		}
-		
-		if(toFirst != 0) {
-			addFirst(toFirst, from);
-		}
+    public static void main(String[] args) {
+        int orderNum = sc.nextInt();
+        
+        while(orderNum-- > 0) {
+        	int order = sc.nextInt();
+        	
+        	if(order == 100) {
+        		init();
+        	} else if (order == 200) {
+        		moveAll();
+        	} else if (order == 300) {
+        		changeHead();
+        	} else if (order == 400) {
+        		divide();
+        	} else if (order == 500) {
+        		getBoxInfo();
+        	} else if (order == 600) {
+        		getBeltInfo();
+        	}
+        }
+    }
 
-		return belts[to].size();
+	private static void getBeltInfo() {
+		int belt = sc.nextInt();
+		int a = (head[belt] == 0)? -1 : head[belt];
+		int b = (tail[belt] == 0)? -1 : tail[belt];
+		int c = boxCount[belt];
+		System.out.println(a + 2 * b + 3 * c);
+		return;
 	}
-	
-	static int dividBoxes(int from, int to) {
-		int boxCount = belts[from].size();
-		if(boxCount > 1) {
-			int move = boxCount / 2;
-			int[] moveBoxes = new int[move];
-			for(int i=0; i<move; i++) {
-				moveBoxes[i] = pollFirst(from);
+
+	private static void getBoxInfo() {
+		int box = sc.nextInt();
+		int a = (prev[box] == 0)? -1 : prev[box];
+		int b = (next[box] == 0)? -1 : next[box];
+		System.out.println(a + 2 * b);
+		return;
+	}
+
+	private static void divide() {
+		int src = sc.nextInt();
+		int dst = sc.nextInt();
+		
+		if(boxCount[src] > 1) {
+			int srcHead = head[src];
+			int lastBox = head[src];
+			
+			int size = boxCount[src] / 2;
+			for(int i=1; i<size; i++) {
+				lastBox = next[lastBox];
 			}
-			for(int i=move-1; i>=0; i--) {
-				addFirst(moveBoxes[i],to);
+			
+			head[src] = next[lastBox];
+			prev[head[src]] = 0;
+			
+			if(boxCount[dst] == 0) {
+				tail[dst] = lastBox;
+				next[lastBox] = 0;
+				
+			} else {
+				int dstHead = head[dst];
+				prev[dstHead] = lastBox;
+				next[lastBox] = dstHead;
 			}
+			
+			head[dst] = srcHead;
+			
+			boxCount[src] -= size;
+			boxCount[dst] += size;
 		}
-		return belts[to].size();
+		System.out.println(boxCount[dst]);
+		return;
+	}
+
+	private static void changeHead() {
+		int src = sc.nextInt();
+		int dst = sc.nextInt();
+		
+		int srcHead = pollHead(src);
+		int dstHead = pollHead(dst);
+		
+		addHead(src, dstHead);
+		addHead(dst, srcHead);
+		
+		System.out.println(boxCount[dst]);
 	}
 	
-	static int getBoxInfo(int boxNum) {
-		Box box = boxes[boxNum];
-		return box.front + (2 * box.back);
-	}
-	
-	static int getBeltInfo(int beltNum) {
-		Deque<Integer> belt = belts[beltNum];
-		if(belt.isEmpty()) {
-			return -1 + (2 * -1) + (3 * 0);
+	private static int pollHead(int belt) {
+		if(boxCount[belt] == 0) {
+			return 0;
 		}
-		return belt.getFirst() + (2 * belt.getLast()) + (3 * belt.size());
+		
+		int currHead = head[belt];
+		
+		if(boxCount[belt] == 1) {
+			head[belt] = 0;
+			tail[belt] = 0;
+		} else {
+			head[belt] = next[currHead];
+			prev[head[belt]] = 0;
+		}
+		
+		next[currHead] = 0;
+		prev[currHead] = 0;
+		
+		boxCount[belt]--;
+		
+		return currHead;
 	}
 	
-	static void addFirst(int boxNum, int beltNum) {
-		if(boxNum == 0 || beltNum == 0) {
+	private static void addHead(int belt, int box) {
+		if(box == 0) {
 			return;
 		}
 		
-		Deque<Integer> belt = belts[beltNum];
-		int prefirstBoxNum = -1;
-		
-		if(!belt.isEmpty()) {
-			prefirstBoxNum = belt.getFirst();
-			boxes[prefirstBoxNum].front = boxNum;
+		if(boxCount[belt] == 0) {
+			head[belt] = box;
+			tail[belt] = box;
+		} else {
+			int prevHead = head[belt];
+			head[belt] = box;
+			next[box] = prevHead;
+			prev[prevHead] = box;
 		}
 		
-		belt.addFirst(boxNum);
-		boxes[boxNum].front = -1;
-		boxes[boxNum].back = prefirstBoxNum;
+		boxCount[belt]++;
+		
+		return;
 	}
-	
-	static void addLast(int boxNum, int beltNum) {
-		if(boxNum == 0 || beltNum == 0) {
+
+	private static void moveAll() {
+		int src = sc.nextInt();
+		int dst = sc.nextInt();
+		
+		if(boxCount[src] == 0) {
+			System.out.println(boxCount[dst]);
 			return;
 		}
 		
-		Deque<Integer> belt = belts[beltNum];
-		int preLastBoxNum = -1;
+		if(boxCount[dst] == 0) {
+			boxCount[dst] = boxCount[src];
+			head[dst] = head[src];
+			tail[dst] = tail[src];
+		} else {
+			int dstHead = head[dst];
+			int srcTail = tail[src];
+			prev[dstHead] = srcTail;
+			next[srcTail] = dstHead;
+			
+			boxCount[dst] += boxCount[src];
+			head[dst] = head[src];
+		}
+		boxCount[src] = 0;
+		head[src] = 0;
+		tail[src] = 0;
 		
-		if(!belt.isEmpty()) {
-			preLastBoxNum = belt.getLast();
-			boxes[preLastBoxNum].back = boxNum;
+		System.out.println(boxCount[dst]);
+		return;
+	}
+
+	private static void init() {
+		int beltNum = sc.nextInt();
+		int boxNum = sc.nextInt();
+		
+		ArrayList<Integer>[] belts = new ArrayList[beltNum + 1];
+		for(int i=1; i<=beltNum; i++) {
+			belts[i] = new ArrayList<>();
 		}
 		
-		belt.addLast(boxNum);
-		boxes[boxNum].front = preLastBoxNum;
-		boxes[boxNum].back = -1;
-	}
-	
-	static int pollFirst(int beltNum) {		
-		Deque<Integer> belt = belts[beltNum];
-		int pollBoxNum = 0;
+		for(int i=1; i<=boxNum; i++) {
+			belts[sc.nextInt()].add(i);
+		}
 		
-		if(!belt.isEmpty()) {
-			pollBoxNum = belt.pollFirst();
-			boxes[pollBoxNum].front = -1;
-			boxes[pollBoxNum].back = -1;
-			
-			if(!belt.isEmpty()) {
-				int firstBoxNum = belt.getFirst();
-				boxes[firstBoxNum].front = -1;
+		for(int i=1; i<=beltNum; i++) {			
+			if(!belts[i].isEmpty()) {
+				boxCount[i] = belts[i].size();
+				head[i] = belts[i].get(0);
+				tail[i] = belts[i].get(belts[i].size() - 1);
+				
+				for(int j=0; j<belts[i].size()-1; j++) {
+					next[belts[i].get(j)] = belts[i].get(j + 1);
+					prev[belts[i].get(j + 1)] = belts[i].get(j);
+				}
 			}
 		}
-		return pollBoxNum;
-	}
-	
-	static int pollLast(int beltNum) {
-		Deque<Integer> belt = belts[beltNum];
-		int pollBoxNum = 0;
-		
-		if(!belt.isEmpty()) {
-			pollBoxNum = belt.pollLast();
-			boxes[pollBoxNum].front = -1;
-			boxes[pollBoxNum].back = -1;
-			
-			if(!belt.isEmpty()) {
-				int lastBoxNum = belt.getLast();
-				boxes[lastBoxNum].back = -1;
-			}
-		}
-		return pollBoxNum;
-	}
-	
-	private static int stoi(String str) {
-		return Integer.parseInt(str);
 	}
 }
