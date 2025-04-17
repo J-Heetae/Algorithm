@@ -22,7 +22,6 @@ public class Main {
 	
 	static int N;
 	static int[][] foods;
-	static boolean[][][] foodArr;
 	static int[][] powers;
 	
 	static boolean[][] pass;
@@ -36,7 +35,6 @@ public class Main {
         int day = sc.nextInt();
         
         foods = new int[N][N];
-        foodArr = new boolean[N][N][3];
         powers = new int[N][N];
         
         sc.nextLine();
@@ -45,13 +43,10 @@ public class Main {
         	for(int j=0; j<N; j++) {
         		if(line.charAt(j) == 'T') {
         		    foods[i][j] = T;
-        		    foodArr[i][j][0] = true;
         		} else if(line.charAt(j) == 'C') {
         		    foods[i][j] = C;
-        		    foodArr[i][j][1] = true;
         		} else {
         		    foods[i][j] = M;
-        		    foodArr[i][j][2] = true;
         		}
         	}
         }
@@ -146,19 +141,14 @@ public class Main {
 			
 			if(powers[nx][ny] < value) { // 강한 전파
 				foods[nx][ny] = food;
-				
-				for(int i=0; i<=2; i++) {
-					foodArr[nx][ny][i] = foodArr[x][y][i];
-				}
-				
+	
 				powers[nx][ny]++;
 				value -= powers[nx][ny];
 				
 			} else { //약한 전파
 				for (int i = 0; i <= 2; i++) {
-				    if (foodArr[x][y][i] && !foodArr[nx][ny][i]) {
-				        foodArr[nx][ny][i] = true;
-				        foods[nx][ny] |= (1 << i);
+					if((foods[x][y] & 1 << i) > 0 && (foods[nx][ny] & (1 << i)) == 0) {
+						foods[nx][ny] |= (1 << i);
 				    }
 				}
 				powers[nx][ny] += value;
@@ -204,11 +194,11 @@ public class Main {
 							int nx = currX + DX[d];
 							int ny = currY + DY[d];
 							
-							if(nx < 0 || nx >= N || ny < 0 || ny >= N) {
+							if(nx < 0 || nx >= N || ny < 0 || ny >= N || visited[nx][ny]) {
 								continue;
 							}
 							
-							if(!visited[nx][ny] && foods[nx][ny] == currFood) {
+							if(foods[nx][ny] == currFood) {
 								visited[nx][ny] = true;
 								q.offer(new int[] {nx, ny});
 							}
@@ -226,15 +216,16 @@ public class Main {
 					
 					int idx = 1;
 					for(int[] m : members) {
-						if(idx == 1) {
+						if(idx == 1) { // 대표자
 							idx--;
 							
 							powers[m[1]][m[2]] += members.size() - 1;
 							
-							int[] currLeader = new int[] {foods[m[1]][m[2]], powers[m[1]][m[2]], m[1], m[2]};
-							if(currLeader[0] < 5) {
+							int[] currLeader = new int[] {currFood, powers[m[1]][m[2]], m[1], m[2]};
+							int count = Integer.bitCount(currFood);
+							if(count == 1) {
 								leaders1.add(currLeader);
-							} else if (currLeader[0] < 7) {
+							} else if (count == 2) {
 								leaders2.add(currLeader);
 							} else {
 								leaders3.add(currLeader);
