@@ -1,6 +1,6 @@
 # [level 3] 조건에 맞는 사용자와 총 거래금액 조회하기 - 164668 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/164668) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/164668?language=mysql) 
 
 ### 성능 요약
 
@@ -16,7 +16,7 @@ Empty
 
 ### 제출 일자
 
-2024년 1월 4일 11:21:36
+2025년 04월 24일 22:23:38
 
 ### 문제 설명
 
@@ -84,7 +84,7 @@ Empty
 <td>FALSE</td>
 </tr>
 <tr>
-<td>NICKANME</td>
+<td>NICKNAME</td>
 <td>VARCHAR(100)</td>
 <td>FALSE</td>
 </tr>
