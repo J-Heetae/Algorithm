@@ -1,25 +1,42 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();  // 동전 종류 수
-        int k = sc.nextInt();  // 목표 금액
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] read;
+
+        read = br.readLine().split(" ");
+        int n = Integer.parseInt(read[0]);
+        int k = Integer.parseInt(read[1]);
 
         int[] coins = new int[n];
-        for (int i = 0; i < n; i++) {
-            coins[i] = sc.nextInt();
+        for(int i = 0; i < n; i++) {
+            read = br.readLine().split(" ");
+            coins[i] = Integer.parseInt(read[0]);
         }
 
-        int[] dp = new int[k + 1];
-        dp[0] = 1; // 0원을 만드는 방법은 1가지
+        int[][] dp = new int[n][k + 1];
+        for(int i=0; i<n; i++) {
+            dp[i][0] = 1;
+        }
 
-        for (int coin : coins) {
-            for (int i = coin; i <= k; i++) {
-                dp[i] += dp[i - coin];
+        for(int i=0; i<n; i++) {
+            for(int j=1; j<=k; j++) {
+                if(i != 0) {
+                    dp[i][j] += dp[i - 1][j];
+                }
+
+                if(j >= coins[i]) {
+                    dp[i][j] += dp[i][j - coins[i]];
+                }
             }
         }
 
-        System.out.println(dp[k]);
+        System.out.println(dp[n - 1][k]);
     }
+
 }
