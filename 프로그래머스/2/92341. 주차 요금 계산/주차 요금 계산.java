@@ -1,72 +1,52 @@
 import java.util.*;
 
 class Solution {
+    private static final int END = 23 * 60 + 59;
     
-    static int index = 0;
-    final String IN = "IN";
-
     public int[] solution(int[] fees, String[] records) {
-        HashMap<String, Integer> indexMap = new HashMap<>();
-        int[] inTime = new int[1000];
-        int[] totalTime = new int[1000];
-        Arrays.fill(inTime, -1);
-    
-        for(String record : records) {
-            StringTokenizer st = new StringTokenizer(record);
-            int time = timeStringToInt(st.nextToken());
-            String carNumber = st.nextToken();
-            String status = st.nextToken();
-            
-            if(!indexMap.containsKey(carNumber)) {
-                indexMap.put(carNumber, index++);
-            }
-            
-            int carIndex = indexMap.get(carNumber);
-            if(status.equals(IN)) {
-                inTime[carIndex] = time;
-            } else {
-                totalTime[carIndex] += time - inTime[carIndex];
-                inTime[carIndex] = -1;
+        Map<String, Integer> inTimes = new HashMap<>();     // 차량별 마지막 IN 시각
+        Map<String, Integer> acc = new TreeMap<>();         // 차량별 누적 주차 분(정렬 필요해 TreeMap)
+        
+        for (String rec : records) {
+            String[] sp = rec.split(" ");
+            int time = parseTime(sp[0]);
+            String car = sp[1];
+            String stat = sp[2];
+
+            if (stat.equals("IN")) {
+                inTimes.put(car, time);
+            } else { // OUT
+                int in = inTimes.remove(car);               // 반드시 존재
+                acc.merge(car, time - in, Integer::sum);    // 누적 분 합산
             }
         }
         
-        for(int i=0; i<1000; i++) {
-            if(inTime[i] != -1) {
-                totalTime[i] += (23 * 60 + 59) - inTime[i];
-            }
+         // 아직 OUT 안 한 차량은 23:59까지 누적
+        for (Map.Entry<String, Integer> e : inTimes.entrySet()) {
+            String car = e.getKey();
+            int in = e.getValue();
+            acc.merge(car, END - in, Integer::sum);
         }
         
-        ArrayList<int[]> carNumberList = new ArrayList<>();
-        for(String str : indexMap.keySet()) {
-            int carNumber = Integer.parseInt(str);
-            int carIndex = indexMap.get(str);
-            carNumberList.add(new int[]{carNumber, carIndex});
+        // 차량번호 오름차순으로 요금 계산
+        int[] ans = new int[acc.size()];
+        int i = 0;
+        for (int minutes : acc.values()) {
+            ans[i++] = calcFee(fees, minutes);
         }
-        
-        carNumberList.sort(Comparator.comparingInt(a -> a[0]));
-        
-        int[] answer = new int[carNumberList.size()];
-        int answerIndex = 0;
-        for(int[] carNumberIndex : carNumberList) {
-            int carIndex = carNumberIndex[1];
-            int curTotalTime = totalTime[carIndex];
-            
-            int fee;
-            if(curTotalTime <= fees[0]) {
-                fee = fees[1];
-            } else {
-                int add = (((curTotalTime - fees[0]) % fees[2]) > 0) ? 1 : 0;
-                fee = fees[1] + ((curTotalTime - fees[0]) / fees[2] + add) * fees[3];
-            }
-            answer[answerIndex++] = fee;
-        }
-        return answer;
+        return ans;
     }
     
-    int timeStringToInt(String str) {
-        StringTokenizer st = new StringTokenizer(str, ":");
-        int hour = Integer.parseInt(st.nextToken());
-        int min = Integer.parseInt(st.nextToken());
-        return hour * 60 + min;
+    private int calcFee(int[] f, int minutes) {
+        int baseTime = f[0], baseFee = f[1], unitTime = f[2], unitFee = f[3];
+        if (minutes <= baseTime) return baseFee;
+        int over = minutes - baseTime;
+        int units = (over + unitTime - 1) / unitTime;
+        return baseFee + units * unitFee;
+    }
+    
+    private int parseTime(String s) {
+        String[] t = s.split(":");
+        return Integer.parseInt(t[0]) * 60 +Integer.parseInt(t[1]);
     }
 }
