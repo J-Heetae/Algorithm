@@ -1,35 +1,31 @@
+import java.util.*;
+
 class Solution {
-    public static void main(String[] args) {
-        Solution s = new Solution();
-        s.solution(3, new int[][] {{1, 1, 0}, {1, 1, 0}, {0, 0, 1}});
-
-    }
-
-    static int[] status;
-    static int[][] connected;
-    static int networkNumber = 1;
-    static int computerNumber;
-
+    
     public int solution(int n, int[][] computers) {
-        computerNumber = n;
-        status = new int[n];
-        connected = computers;
-
+        boolean[] visited = new boolean[n];
+        
+        int network = 0;
         for(int i=0; i<n; i++) {
-            if(status[i] == 0) {
-                connect(i, networkNumber++);
+            if(!visited[i]) {
+                visited[i] = true;
+                
+                network++;
+                
+                Queue<Integer> que = new LinkedList<>();
+                que.offer(i);
+                while(!que.isEmpty()) {
+                    int curr = que.poll();
+                    for(int j=0; j<n; j++) {
+                        if(j != curr && computers[curr][j] == 1 && !visited[j]) {
+                            visited[j] = true;
+                            que.offer(j);
+                        }
+                    }
+                }
+                
             }
         }
-
-        return networkNumber - 1;
-    }
-
-    void connect(int cur, int network) {
-        for(int next=0; next<computerNumber; next++) {
-            if(connected[cur][next] == 1 && status[next] == 0) {
-                status[next] = network;
-                connect(next, network);
-            }
-        }
+        return network;
     }
 }
