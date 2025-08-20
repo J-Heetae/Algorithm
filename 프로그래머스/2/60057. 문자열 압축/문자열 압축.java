@@ -1,57 +1,34 @@
-import java.util.*;
-
 class Solution {
-
-    public static void main(String[] args) {
-        Solution s = new Solution();
-        s.solution("xababcdcdababcdcd");
-    }
-
-    static String str;
-
     public int solution(String s) {
-        this.str = s;
-        int answer = str.length();
-        for(int unit = 1; unit <= str.length() / 2; unit++) {
-            answer = Math.min(answer, compression(unit));
-        }
-        return answer;
-    }
-
-    int compression(int unit) {
-        StringBuilder sb = new StringBuilder();
-
-        String before = str.substring(0, unit);
-        int repeated = 1;
-
-        for(int i = unit; i < str.length(); i += unit) {
-            boolean flag = true;
-            if(i + unit - 1 >= str.length()) {
-                break;
-            }
-            for(int j = 0; j < unit; j++) {
-                if(before.charAt(j) != str.charAt(i + j)) {
-                    flag = false;
+        int sLength = s.length();
+        int minLength = sLength;
+        
+        for(int cut = 1; cut <= sLength / 2; cut++) { //자르는 길이
+            StringBuilder sb = new StringBuilder();
+            
+            for(int idx = 0; idx < sLength; idx += cut) {
+                if(sb.length() >= minLength) {
                     break;
                 }
-            }
-
-            if(flag) {
-                repeated++;
-            } else {
-                if(repeated > 1) {
-                    sb.append(repeated);
+                if(idx + cut <= sLength) {
+                    String curr = s.substring(idx, idx + cut);
+                    int count = 1;
+                    int lastIdx = idx + cut;
+                    while(lastIdx + cut <= sLength && curr.equals(s.substring(lastIdx, lastIdx + cut))) {
+                        count++;
+                        lastIdx += cut;
+                    }
+                    if(count > 1) {
+                        sb.append(count)
+                            .append(s.substring(idx, idx + cut));
+                        idx = lastIdx - cut;
+                        continue;
+                    }
                 }
-                sb.append(before);
-                before = str.substring(i, Math.min(str.length(), i + unit));
-                repeated = 1;
+                sb.append(s.substring(idx, Math.min(idx + cut, sLength)));
             }
+            minLength = Math.min(minLength, sb.length());
         }
-        if(repeated > 1) {
-            sb.append(repeated);
-        }
-        sb.append(before);
-        sb.append(str.substring(str.length() - (str.length() % unit)));
-        return sb.length();
+        return minLength;
     }
 }
