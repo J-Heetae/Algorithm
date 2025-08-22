@@ -1,55 +1,63 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        int K = sc.nextInt();
 
-        // 보석의 무게와 가격 저장
-        Jewel[] jewels = new Jewel[N];
-        for (int i = 0; i < N; i++) {
-            int weight = sc.nextInt();
-            int value = sc.nextInt();
+    static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    static StringTokenizer tokenizer;
+
+    public static void main(String[] args) throws IOException {
+        tokenizer = new StringTokenizer(reader.readLine());
+        int numJewels = Integer.parseInt(tokenizer.nextToken());
+        int bumBags = Integer.parseInt(tokenizer.nextToken());
+
+        Jewel[] jewels = new Jewel[numJewels];
+        int[] bags = new int[bumBags];
+
+        for (int i = 0; i < numJewels; i++) {
+            tokenizer = new StringTokenizer(reader.readLine());
+            int weight = Integer.parseInt(tokenizer.nextToken());
+            int value = Integer.parseInt(tokenizer.nextToken());
             jewels[i] = new Jewel(weight, value);
         }
 
-        // 가방의 최대 허용 무게 저장
-        int[] bags = new int[K];
-        for (int i = 0; i < K; i++) {
-            bags[i] = sc.nextInt();
+        int maxWeight = 0;
+        for (int i = 0; i < bumBags; i++) {
+            tokenizer = new StringTokenizer(reader.readLine());
+            bags[i] = Integer.parseInt(tokenizer.nextToken());
+            maxWeight = Math.max(maxWeight, bags[i]);
         }
 
-        // 보석과 가방을 각각 무게, 허용무게 기준으로 오름차순 정렬
-        Arrays.sort(jewels, (a, b) -> a.weight - b.weight);
+        Arrays.sort(jewels, Comparator.comparingInt(a -> a.weight));
         Arrays.sort(bags);
 
-        // 최대 힙을 사용하여 최대 가격의 보석을 선택
-        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
-        long maxValue = 0;
-        int jewelIndex = 0;
-
-        for (int i = 0; i < K; i++) {
-            while (jewelIndex < N && jewels[jewelIndex].weight <= bags[i]) {
-                maxHeap.add(jewels[jewelIndex].value);
-                jewelIndex++;
+        PriorityQueue<Integer> jewelValueQueue = new PriorityQueue<>(Collections.reverseOrder());
+        int jewelIdx = 0;
+        long totalValue = 0L;
+        for (int bag : bags) {
+            while (jewelIdx < jewels.length && jewels[jewelIdx].weight <= bag) {
+                jewelValueQueue.offer(jewels[jewelIdx].value);
+                jewelIdx++;
             }
-
-            if (!maxHeap.isEmpty()) {
-                maxValue += maxHeap.poll();
+            if (!jewelValueQueue.isEmpty()) {
+                totalValue += jewelValueQueue.poll();
             }
         }
-
-        System.out.println(maxValue);
+        System.out.println(totalValue);
     }
-}
 
-class Jewel {
-    int weight;
-    int value;
+    static class Jewel {
+        int weight, value;
 
-    public Jewel(int weight, int value) {
-        this.weight = weight;
-        this.value = value;
+        public Jewel(int weight, int value) {
+            this.weight = weight;
+            this.value = value;
+        }
     }
 }
