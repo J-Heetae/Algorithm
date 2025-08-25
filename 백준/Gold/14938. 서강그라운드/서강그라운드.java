@@ -1,85 +1,70 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 class Main {
-
-    static final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static StringTokenizer tokenizer;
-
     public static void main(String[] args) throws IOException {
-        tokenizer = new StringTokenizer(br.readLine());
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+        int r = Integer.parseInt(st.nextToken());
 
-        int regionNumber = Integer.parseInt(tokenizer.nextToken()); //지역 개수
-        int searchRange = Integer.parseInt(tokenizer.nextToken()); //수색 범위
-        int roadNumber = Integer.parseInt(tokenizer.nextToken()); //길의 개수
-
-        int[] itemNumberArr = new int[regionNumber + 1];
-        int[][] roadArr = new int[regionNumber + 1][regionNumber + 1];
-
-        //지역별 아이템 개수 입력받기
-        tokenizer = new StringTokenizer(br.readLine());
-        for (int i = 1; i <= regionNumber; i++) {
-            itemNumberArr[i] = Integer.parseInt(tokenizer.nextToken());
+        int[] items = new int[n + 1];
+        st = new StringTokenizer(br.readLine());
+        for(int i=1;i <=n; i++) {
+            items[i] = Integer.parseInt(st.nextToken());
         }
 
-        //길 입력 받기
-        for (int i = 0; i < roadNumber; i++) {
-            tokenizer = new StringTokenizer(br.readLine());
-            int regionA = Integer.parseInt(tokenizer.nextToken());
-            int regionB = Integer.parseInt(tokenizer.nextToken());
-            int distance = Integer.parseInt(tokenizer.nextToken());
-            roadArr[regionA][regionB] = distance;
-            roadArr[regionB][regionA] = distance;
+
+        List<int[]>[] roads = new ArrayList[n + 1];
+        for(int i=1; i<=n; i++) {
+            roads[i] = new ArrayList<>();
         }
 
-        int maxItemCount = 0;
-        for (int startRegion = 1; startRegion <= regionNumber; startRegion++) {
-            int obtainedItemCount = 0;
-            int[] minDistanceArr = new int[regionNumber + 1];
+        for(int i=0; i<r; i++) {
+            st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int d = Integer.parseInt(st.nextToken());
+            roads[a].add(new int[]{b, d});
+            roads[b].add(new int[]{a, d});
+        }
 
-            Arrays.fill(minDistanceArr, Integer.MAX_VALUE);
-            minDistanceArr[startRegion] = 0;
-
-            PriorityQueue<int[]> roadQueue = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
-            for (int nextRegion = 1; nextRegion <= regionNumber; nextRegion++) {
-                if (roadArr[startRegion][nextRegion] > 0) {
-                    roadQueue.offer(new int[] {nextRegion, roadArr[startRegion][nextRegion]});
-                }
+        int max = 0;
+        for(int start=1; start<=n; start++) {
+            int[] length = new int[n + 1];
+            for(int i=1; i<=n; i++) {
+                length[i] = -1;
             }
+            length[start] = 0;
 
-            while (!roadQueue.isEmpty()) {
-                int[] poll = roadQueue.poll();
+            PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+            pq.offer(new int[]{start, 0});
 
-                int region = poll[0];
-                int distance = poll[1];
+            while(!pq.isEmpty()) {
+                int[] poll = pq.poll();
+                int from = poll[0];
+                int dis = poll[1];
 
-                if (distance <= searchRange && minDistanceArr[region] > distance) {
-                    minDistanceArr[region] = distance;
-
-                    for (int nextRegion = 1; nextRegion <= regionNumber; nextRegion++) {
-                        if (roadArr[region][nextRegion] != 0 //길이 있고
-                            && roadArr[region][nextRegion] + distance <= searchRange //수색범위 안이고
-                            && minDistanceArr[nextRegion] > roadArr[region][nextRegion] + distance) { //최소 거리이면
-                            roadQueue.offer(new int[] {nextRegion, roadArr[region][nextRegion] + distance});
+                for(int[] road : roads[from]) { //현재 위치에서 갈 수 있는 지역
+                    int to = road[0];
+                    int nextDis = road[1];
+                    if(length[to] == -1 || length[to] > dis + nextDis) { //처음 방문하는 지역
+                        if(dis + nextDis <= m) { //수색범위 내
+                            length[to] = dis + nextDis;
+                            pq.offer(new int[]{to, length[to]});
                         }
                     }
                 }
             }
 
-            for (int region = 1; region <= regionNumber; region++) {
-                if (minDistanceArr[region] <= searchRange) {
-                    obtainedItemCount += itemNumberArr[region];
-                }
+            int sum = 0;
+            for(int i=1; i<=n; i++) {
+                if(length[i] != -1) sum += items[i];
             }
 
-            maxItemCount = Math.max(maxItemCount, obtainedItemCount);
+            max = Math.max(sum, max);
         }
-        System.out.println(maxItemCount);
+        System.out.print(max);
     }
-
 }
