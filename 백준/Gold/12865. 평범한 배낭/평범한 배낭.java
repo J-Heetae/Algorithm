@@ -1,28 +1,32 @@
 import java.util.*;
+import java.io.*;
 
 class Main {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int N = sc.nextInt();
-		int K = sc.nextInt();
-		
-		int[][] items = new int[N + 1][2];
-		for(int i=1; i<=N; i++) {
-			items[i][0] = sc.nextInt();
-			items[i][1] = sc.nextInt();
-		}
-		
-		int[][] dp = new int[N + 1][K + 1];
-		for(int idx=1; idx<=N; idx++) {
-			int[] currItem = items[idx];
-			for(int weight=1; weight<=K; weight++) {
-				if(weight < currItem[0]) {
-					dp[idx][weight] = Math.max(dp[idx][weight - 1], dp[idx - 1][weight]);
-				} else {
-					dp[idx][weight] = Math.max(dp[idx - 1][weight - currItem[0]] + currItem[1], dp[idx - 1][weight]);
-				}
-			}
-		}
-		System.out.println(dp[N][K]);
-	}
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        int K = Integer.parseInt(st.nextToken());
+
+        int[][] items = new int[N][2];
+        for(int i=0; i<N; i++) {
+            st = new StringTokenizer(br.readLine());
+            items[i][0] = Integer.parseInt(st.nextToken());
+            items[i][1] = Integer.parseInt(st.nextToken());
+        }
+
+        int[][] dp = new int[N + 1][K + 1];
+        for(int i=1; i<=N; i++) {
+            int w = items[i-1][0];
+            int v = items[i-1][1];
+            for(int j=1; j<=K; j++) {
+                dp[i][j] = dp[i - 1][j];
+                if(j - w >= 0) {
+                    dp[i][j] = Math.max(dp[i - 1][j - w] + v, dp[i][j]);
+                }
+            }
+        }
+
+        System.out.print(dp[N][K]);
+    }
 }
