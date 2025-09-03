@@ -1,52 +1,48 @@
+import java.util.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
 
 class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer st = new StringTokenizer(br.readLine());
         int N = Integer.parseInt(st.nextToken());
         int M = Integer.parseInt(st.nextToken());
 
-        ArrayList<Integer>[] next = new ArrayList[N+1];
+        int[] in = new int[N + 1];
+        List<Integer>[] out = new List[N + 1];
 
         for(int i=1; i<=N; i++) {
-            next[i] = new ArrayList<>();
+            out[i] = new ArrayList<>();
         }
 
-        int[] indegree = new int[N+1];
-
-        int before, cur;
         for(int i=0; i<M; i++) {
             st = new StringTokenizer(br.readLine());
-            before = Integer.parseInt(st.nextToken());
-            cur = Integer.parseInt(st.nextToken());
-            indegree[cur]++;
-            next[before].add(cur);
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            in[b]++;
+            out[a].add(b);
         }
 
         PriorityQueue<Integer> pq = new PriorityQueue<>();
         for(int i=1; i<=N; i++) {
-            if (indegree[i] == 0) {
+            if(in[i] == 0) {
                 pq.offer(i);
             }
         }
 
+        StringBuilder sb = new StringBuilder();
         while(!pq.isEmpty()) {
-            int problem = pq.poll();
-            for(int n : next[problem]) {
-                indegree[n]--;
-                if(indegree[n] == 0) {
-                    pq.offer(n);
+            int poll = pq.poll();
+
+            sb.append(poll).append(" ");
+
+            for(int next : out[poll]) {
+                in[next]--;
+                if(in[next] == 0) {
+                    pq.offer(next);
                 }
             }
-            bw.write(problem + " ");
         }
-        bw.flush();
-        bw.close();
-        br.close();
+        System.out.print(sb);
     }
 }
